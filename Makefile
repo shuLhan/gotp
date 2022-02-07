@@ -1,7 +1,7 @@
 .PHONY: all install
 
 all:
-	go test -race -failfast ./...
+	CGO_ENABLED=1 go test -race -failfast ./...
 
 install:
 	go install ./cmd/gotp
