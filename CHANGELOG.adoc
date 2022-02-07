@@ -1,0 +1,21 @@
+= gotp changelog
+Shulhan <ms@kilabit.info>
+:toc:
+:sectanchors:
+:sectlinks:
+
+== gotp v0.1.0 (2022-02-08)
+
+The first release of gotp, a command line interface to manage and generate
+Time-based One Time Password (TOTP).
+
+Features,
+* Add a TOTP secret identified by unique LABEL.
+* Generate N number passwords using the secret identified by LABEL.
+* Import the TOTP configuration from other provider.
+  Currently, the only supported PROVIDER is Aegis and the supported file
+  is .txt.
+* List all labels stored in the configuration.
+* Remove LABEL from configuration.
+* Rename a LABEL into NEW-LABEL.
+* Encrypted secret using RSA based private key.
