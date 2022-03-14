@@ -6,6 +6,13 @@ Shulhan <ms@kilabit.info>
 :sectanchors:
 :sectlinks:
 
+== gotp v0.2.0 (2022-03-14)
+
+Release gotp under GPL 3.0 or later.
+
+See https://kilabit.info/journal/2022/gpl/ for more information.
+
+
 == gotp v0.1.0 (2022-02-08)
 
 The first release of gotp, a command line interface to manage and generate
