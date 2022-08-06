@@ -83,8 +83,10 @@ func TestCli_Add(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		desc:      `With nil issuer`,
-		expConfig: "[gotp]\nprivate_key =\n",
+		desc: `With nil issuer`,
+		expConfig: `[gotp]
+private_key =
+`,
 	}, {
 		desc: `With invalid label`,
 		issuer: &Issuer{
@@ -105,7 +107,12 @@ func TestCli_Add(t *testing.T) {
 			Hash:   HashSHA1,
 			Secret: `x`,
 		},
-		expConfig: "[gotp]\nprivate_key =\n\n[gotp \"issuer\"]\ntest = SHA1:x:6:30:\n",
+		expConfig: `[gotp "issuer"]
+test = SHA1:x:6:30:
+
+[gotp]
+private_key =
+`,
 	}}
 
 	var (
