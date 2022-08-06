@@ -150,12 +150,12 @@ func (cli *Cli) Add(issuer *Issuer) (err error) {
 	return nil
 }
 
-//
 // Generate n number of OTP from given issuer name.
-//
 func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 	var (
-		logp       = "Generate"
+		logp   = `Generate`
+		b32Enc = base32.StdEncoding.WithPadding(base32.NoPadding)
+
 		cryptoHash totp.CryptoHash
 	)
 
@@ -164,7 +164,7 @@ func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 		return nil, fmt.Errorf("%s: %w", logp, err)
 	}
 
-	secret, err := base32.StdEncoding.DecodeString(issuer.Secret)
+	secret, err := b32Enc.DecodeString(issuer.Secret)
 	if err != nil {
 		return nil, fmt.Errorf("%s: secret is not a valid base32 encoding: %w", logp, err)
 	}
