@@ -24,6 +24,10 @@ const (
 	providerNameAegis = `aegis`
 )
 
+var (
+	Version = `0.2.0`
+)
+
 // normalizeLabel convert non alpha number, hyphen, underscore, or period
 // characters into `-`.
 func normalizeLabel(in string) (out string) {

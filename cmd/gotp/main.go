@@ -22,6 +22,7 @@ const (
 	cmdList     = `list`
 	cmdRemove   = `remove`
 	cmdRename   = `rename`
+	cmdVersion  = `version`
 )
 
 func main() {
@@ -76,6 +77,11 @@ func main() {
 			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
 			os.Exit(1)
 		}
+
+	case cmdVersion:
+		fmt.Println(`gotp v`, gotp.Version)
+		return
+
 	default:
 		log.Printf(`%s: unknown command %q`, cmdName, cmd)
 		flag.Usage()
