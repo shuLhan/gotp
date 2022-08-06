@@ -8,11 +8,9 @@ go 1.18
 require (
 	github.com/shuLhan/share v0.40.0
 	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
+	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467
 )
 
-require (
-	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
-	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467 // indirect
-)
+require golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 
 //replace github.com/shuLhan/share => ../share

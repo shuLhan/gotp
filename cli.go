@@ -16,7 +16,7 @@ import (
 
 	"github.com/shuLhan/share/lib/totp"
 	"golang.org/x/crypto/ssh"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 //go:embed README.adoc
@@ -116,7 +116,7 @@ func (cli *Cli) loadPrivateKey(privateKeyFile string, pass []byte) (
 
 		stdin = int(os.Stdin.Fd())
 
-		pass, err = terminal.ReadPassword(stdin)
+		pass, err = term.ReadPassword(stdin)
 		fmt.Println()
 		if err != nil {
 			return nil, fmt.Errorf(`%s %q: %w`, logp, privateKeyFile, err)
