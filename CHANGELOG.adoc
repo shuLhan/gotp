@@ -6,6 +6,37 @@ Shulhan <ms@kilabit.info>
 :sectanchors:
 :sectlinks:
 
+
+[#v0_2_1]
+== gotp v0.2.1 (2022-08-07)
+
+[#v0_2_1_bug_fixes]
+===  Bug fixes
+
+all: fix base32 decoding on secret::
++
+--
+The base32 decoding should be without padding otherwise it will return
+an error (for some base32 string):
+
+	illegal base32 data at input byte XX
+--
+
+[#v0_2_1_chores]
+===  Chores
+
+_AUR: add package build for Arch Linux::
+This package build the gotp based on the latest tag and commit.
+
+go.mod: set minimum Go version to 1.18 and update all modules::
++
+--
+The 1.17 has been deprecated since the release of 1.19.
+
+This update affect the test cases on Cli.
+--
+
+[#v0_2_0]
 == gotp v0.2.0 (2022-03-14)
 
 Release gotp under GPL 3.0 or later.
@@ -13,12 +44,14 @@ Release gotp under GPL 3.0 or later.
 See https://kilabit.info/journal/2022/gpl/ for more information.
 
 
+[#v0_1_0]
 == gotp v0.1.0 (2022-02-08)
 
 The first release of gotp, a command line interface to manage and generate
 Time-based One Time Password (TOTP).
 
 Features,
+
 * Add a TOTP secret identified by unique LABEL.
 * Generate N number passwords using the secret identified by LABEL.
 * Import the TOTP configuration from other provider.
