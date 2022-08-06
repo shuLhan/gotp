@@ -1,6 +1,8 @@
 // SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// Command gotp a command line interface to manage and generate Time-based One
+// Time Password (TOTP).
 package main
 
 import (
