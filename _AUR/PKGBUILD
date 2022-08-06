@@ -1,0 +1,41 @@
+# Maintainer: shulhan <ms@kilabit.info>
+
+pkgname=gotp-git
+pkgver=0.2.0.r5.gdbfed69
+pkgrel=1
+
+pkgdesc="A command line interface to manage and generate Time-based One Time Password (TOTP)"
+arch=(x86_64)
+url='https://git.sr.ht/~shulhan/gotp'
+license=('GPL3')
+
+makedepends=(
+	'go'
+	'git'
+)
+
+provides=('awwan')
+
+source=(
+	"$pkgname::git+https://git.sr.ht/~shulhan/gotp"
+	#"$pkgname::git+file:///home/ms/go/src/git.sr.ht/~shulhan/gotp"
+)
+md5sums=(
+	'SKIP'
+)
+
+pkgver() {
+	cd "$pkgname"
+	git describe --long --tags | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+	cd "$pkgname"
+	make
+}
+
+package() {
+	cd "$pkgname"
+	install -Dm755 _bin/gotp $pkgdir/usr/bin/gotp
+	install -Dm755 COPYING $pkgdir/usr/share/licenses/gotp/COPYING
+}

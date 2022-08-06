@@ -1,0 +1,14 @@
+pkgbase = gotp-git
+	pkgdesc = A command line interface to manage and generate Time-based One Time Password (TOTP)
+	pkgver = 0.2.0.r5.gdbfed69
+	pkgrel = 1
+	url = https://git.sr.ht/~shulhan/gotp
+	arch = x86_64
+	license = GPL3
+	makedepends = go
+	makedepends = git
+	provides = awwan
+	source = gotp-git::git+https://git.sr.ht/~shulhan/gotp
+	md5sums = SKIP
+
+pkgname = gotp-git
