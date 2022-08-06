@@ -12,43 +12,52 @@ import (
 )
 
 func parseProviderAegis(file string) (issuers []*Issuer, err error) {
-	logp := "parseProviderAegis"
+	var (
+		logp = `parseProviderAegis`
 
-	b, err := os.ReadFile(file)
+		u      *url.URL
+		issuer *Issuer
+		q      url.Values
+		val    string
+		lines  [][]byte
+		line   []byte
+		b      []byte
+		x      int
+	)
+
+	b, err = os.ReadFile(file)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", logp, err)
+		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
-	lines := bytes.Split(b, []byte("\n"))
-	for x, line := range lines {
-		u, err := url.Parse(string(line))
+	lines = bytes.Split(b, []byte("\n"))
+	for x, line = range lines {
+		u, err = url.Parse(string(line))
 		if err != nil {
-			return nil, fmt.Errorf("%s: line %d: invalid format %q", logp, x, line)
+			return nil, fmt.Errorf(`%s: line %d: invalid format %q`, logp, x, line)
 		}
-		if u.Host != "totp" {
+		if u.Host != `totp` {
 			continue
 		}
 
-		q := u.Query()
-		issuer := &Issuer{
+		q = u.Query()
+		issuer = &Issuer{
 			Label:  normalizeLabel(u.Path[1:]),
-			Hash:   q.Get("algorithm"),
-			Secret: q.Get("secret"),
-			Name:   q.Get("issuer"),
+			Hash:   q.Get(`algorithm`),
+			Secret: q.Get(`secret`),
+			Name:   q.Get(`issuer`),
 		}
 
-		val := q.Get("digits")
+		val = q.Get(`digits`)
 		issuer.Digits, err = strconv.Atoi(val)
 		if err != nil {
-			return nil, fmt.Errorf("%s: line %d: invalid digits %q",
-				logp, x, val)
+			return nil, fmt.Errorf(`%s: line %d: invalid digits %q`, logp, x, val)
 		}
 
-		val = q.Get("period")
+		val = q.Get(`period`)
 		issuer.TimeStep, err = strconv.Atoi(val)
 		if err != nil {
-			return nil, fmt.Errorf("%s: line %d: invalid period %q",
-				logp, x, val)
+			return nil, fmt.Errorf(`%s: line %d: invalid period %q`, logp, x, val)
 		}
 
 		issuers = append(issuers, issuer)

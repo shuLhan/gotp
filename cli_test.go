@@ -12,34 +12,44 @@ import (
 )
 
 func TestCli_inputPrivateKey(t *testing.T) {
-	cli := &Cli{
-		cfg: &config{
-			file:       "testdata/save.conf",
-			isNotExist: true,
-		},
-	}
-
-	cases := []struct {
+	type testCase struct {
 		desc       string
 		privateKey string
 		exp        string
-	}{{
-		desc: "Without private key",
+	}
+
+	var (
+		cli = &Cli{
+			cfg: &config{
+				file:       `testdata/save.conf`,
+				isNotExist: true,
+			},
+		}
+
+		c                 testCase
+		r                 *os.File
+		w                 *os.File
+		gotPrivateKeyFile string
+		err               error
+	)
+
+	var cases = []testCase{{
+		desc: `Without private key`,
 		exp:  "[gotp]\nprivate_key =\n",
 	}, {
-		desc:       "With private key",
-		privateKey: "testdata/rsa",
+		desc:       `With private key`,
+		privateKey: `testdata/rsa`,
 	}}
 
-	for _, c := range cases {
-		r, w, err := os.Pipe()
+	for _, c = range cases {
+		r, w, err = os.Pipe()
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		fmt.Fprintf(w, "%s\n", c.privateKey)
 
-		gotPrivateKeyFile, err := cli.inputPrivateKey(r)
+		gotPrivateKeyFile, err = cli.inputPrivateKey(r)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -49,59 +59,70 @@ func TestCli_inputPrivateKey(t *testing.T) {
 }
 
 func TestCli_Add(t *testing.T) {
-	cli := &Cli{
-		cfg: &config{
-			Issuers: make(map[string]string),
-			file:    "testdata/add.conf",
-		},
+	type testCase struct {
+		issuer    *Issuer
+		desc      string
+		expError  string
+		expConfig string
 	}
 
-	err := cli.cfg.save()
+	var (
+		cli = &Cli{
+			cfg: &config{
+				Issuers: make(map[string]string),
+				file:    `testdata/add.conf`,
+			},
+		}
+
+		err error
+	)
+
+	err = cli.cfg.save()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	cases := []struct {
-		desc      string
-		issuer    *Issuer
-		expError  string
-		expConfig string
-	}{{
-		desc:      "With nil issuer",
+	var cases = []testCase{{
+		desc:      `With nil issuer`,
 		expConfig: "[gotp]\nprivate_key =\n",
 	}, {
-		desc: "With invalid label",
+		desc: `With invalid label`,
 		issuer: &Issuer{
-			Label: "Not@valid",
+			Label: `Not@valid`,
 		},
 		expError: `Add: validate: invalid label "Not@valid"`,
 	}, {
-		desc: "With invalid hash",
+		desc: `With invalid hash`,
 		issuer: &Issuer{
-			Label: "Test",
-			Hash:  "SHA255",
+			Label: `Test`,
+			Hash:  `SHA255`,
 		},
 		expError: `Add: validate: invalid algorithm "SHA255"`,
 	}, {
-		desc: "With valid label",
+		desc: `With valid label`,
 		issuer: &Issuer{
-			Label:  "Test",
+			Label:  `Test`,
 			Hash:   HashSHA1,
-			Secret: "x",
+			Secret: `x`,
 		},
 		expConfig: "[gotp]\nprivate_key =\n\n[gotp \"issuer\"]\ntest = SHA1:x:6:30:\n",
 	}}
 
-	for _, c := range cases {
+	var (
+		c   testCase
+		got []byte
+	)
+
+	for _, c = range cases {
 		t.Log(c.desc)
 
 		err = cli.Add(c.issuer)
 		if err != nil {
-			test.Assert(t, "error", c.expError, err.Error())
+			test.Assert(t, `error`, c.expError, err.Error())
 			continue
 		}
 
-		got, err := os.ReadFile(cli.cfg.file)
+		got, err = os.ReadFile(cli.cfg.file)
 		if err != nil {
 			t.Fatal(err)
 		}

@@ -15,16 +15,23 @@ import (
 )
 
 const (
-	cmdName     = "gotp"
-	cmdAdd      = "add"
-	cmdGenerate = "gen"
-	cmdImport   = "import"
-	cmdList     = "list"
-	cmdRemove   = "remove"
-	cmdRename   = "rename"
+	cmdName     = `gotp`
+	cmdAdd      = `add`
+	cmdGenerate = `gen`
+	cmdImport   = `import`
+	cmdList     = `list`
+	cmdRemove   = `remove`
+	cmdRename   = `rename`
 )
 
 func main() {
+	var (
+		cmd  string
+		cli  *gotp.Cli
+		err  error
+		args []string
+	)
+
 	log.SetFlags(0)
 
 	flag.Usage = func() {
@@ -33,49 +40,50 @@ func main() {
 	}
 	flag.Parse()
 
-	args := flag.Args()
+	args = flag.Args()
+
 	if len(args) == 0 {
 		flag.Usage()
 	}
 
-	cmd := strings.ToLower(args[0])
+	cmd = strings.ToLower(args[0])
 
 	switch cmd {
 	case cmdAdd:
 		if len(args) < 3 {
-			log.Printf("%s %s: missing parameters", cmdName, cmd)
+			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
 			os.Exit(1)
 		}
 	case cmdGenerate:
 		if len(args) < 2 {
-			log.Printf("%s %s: missing parameters", cmdName, cmd)
+			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
 			os.Exit(1)
 		}
 	case cmdImport:
 		if len(args) <= 2 {
-			log.Printf("%s %s: missing parameters", cmdName, cmd)
+			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
 			os.Exit(1)
 		}
 	case cmdList:
 		// NOOP.
 	case cmdRemove:
 		if len(args) <= 1 {
-			log.Printf("%s %s: missing parameters", cmdName, cmd)
+			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
 			os.Exit(1)
 		}
 	case cmdRename:
 		if len(args) <= 2 {
-			log.Printf("%s %s: missing parameters", cmdName, cmd)
+			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
 			os.Exit(1)
 		}
 	default:
-		log.Printf("%s: unknown command %q", cmdName, cmd)
+		log.Printf(`%s: unknown command %q`, cmdName, cmd)
 		flag.Usage()
 	}
 
-	cli, err := gotp.NewCli()
+	cli, err = gotp.NewCli()
 	if err != nil {
-		log.Printf("%s: %s", cmdName, err)
+		log.Printf(`%s: %s`, cmdName, err)
 		os.Exit(1)
 	}
 
@@ -96,40 +104,51 @@ func main() {
 }
 
 func doAdd(cli *gotp.Cli, args []string) {
-	label := args[1]
-	rawConfig := args[2]
-	issuer, err := gotp.NewIssuer(label, rawConfig, nil)
+	var (
+		label     = args[1]
+		rawConfig = args[2]
+
+		issuer *gotp.Issuer
+		err    error
+	)
+
+	issuer, err = gotp.NewIssuer(label, rawConfig, nil)
 	if err != nil {
-		log.Printf("%s: %s", cmdName, err)
+		log.Printf(`%s: %s`, cmdName, err)
 		os.Exit(1)
 	}
 	err = cli.Add(issuer)
 	if err != nil {
-		log.Printf("%s: %s", cmdName, err)
+		log.Printf(`%s: %s`, cmdName, err)
 		os.Exit(1)
 	}
-	fmt.Println("OK")
+	fmt.Println(`OK`)
 }
 
 func doGenerate(cli *gotp.Cli, args []string) {
 	var (
 		label     = args[1]
 		n     int = 1
-		err   error
+
+		listOtp []string
+		otp     string
+		err     error
 	)
+
 	if len(args) >= 3 {
 		n, err = strconv.Atoi(args[2])
 		if err != nil {
-			log.Printf("%s: %s", cmdName, err)
+			log.Printf(`%s: %s`, cmdName, err)
 			os.Exit(1)
 		}
 	}
-	listOtp, err := cli.Generate(label, n)
+
+	listOtp, err = cli.Generate(label, n)
 	if err != nil {
-		log.Printf("%s: %s", cmdName, err)
+		log.Printf(`%s: %s`, cmdName, err)
 		os.Exit(1)
 	}
-	for _, otp := range listOtp {
+	for _, otp = range listOtp {
 		fmt.Println(otp)
 	}
 }
@@ -138,40 +157,57 @@ func doImport(cli *gotp.Cli, args []string) {
 	var (
 		providerName = args[1]
 		file         = args[2]
+
+		n   int
+		err error
 	)
-	n, err := cli.Import(providerName, file)
+	n, err = cli.Import(providerName, file)
 	if err != nil {
-		log.Printf("%s: %s", cmdName, err)
+		log.Printf(`%s: %s`, cmdName, err)
 		os.Exit(1)
 	}
-	fmt.Printf("OK - %d imported", n)
+	fmt.Printf(`OK - %d imported`, n)
 }
 
 func doList(cli *gotp.Cli) {
-	labels := cli.List()
-	for _, label := range labels {
+	var (
+		labels []string = cli.List()
+
+		label string
+	)
+
+	for _, label = range labels {
 		fmt.Println(label)
 	}
 }
 
 func doRemove(cli *gotp.Cli, args []string) {
-	label := args[1]
-	err := cli.Remove(label)
+	var (
+		label = args[1]
+
+		err error
+	)
+
+	err = cli.Remove(label)
 	if err != nil {
-		log.Printf("%s: %s", cmdName, err)
+		log.Printf(`%s: %s`, cmdName, err)
 		os.Exit(1)
 	}
-	fmt.Println("OK")
+	fmt.Println(`OK`)
 }
 
 func doRename(cli *gotp.Cli, args []string) {
-	label := args[1]
-	newLabel := args[2]
+	var (
+		label    = args[1]
+		newLabel = args[2]
 
-	err := cli.Rename(label, newLabel)
+		err error
+	)
+
+	err = cli.Rename(label, newLabel)
 	if err != nil {
-		log.Printf("%s: %s", cmdName, err)
+		log.Printf(`%s: %s`, cmdName, err)
 		os.Exit(1)
 	}
-	fmt.Println("OK")
+	fmt.Println(`OK`)
 }

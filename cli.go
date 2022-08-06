@@ -28,39 +28,42 @@ type Cli struct {
 
 func NewCli() (cli *Cli, err error) {
 	var (
-		logp = "NewCli"
+		logp = `NewCli`
+
+		userConfigDir string
+		cfgFile       string
 	)
 
 	cli = &Cli{}
 
-	userConfigDir, err := os.UserConfigDir()
+	userConfigDir, err = os.UserConfigDir()
 	if err != nil {
-		return nil, fmt.Errorf("%s: UserConfigDir: %w", logp, err)
+		return nil, fmt.Errorf(`%s: UserConfigDir: %w`, logp, err)
 	}
 
-	cfgFile := filepath.Join(userConfigDir, configDir, configFile)
+	cfgFile = filepath.Join(userConfigDir, configDir, configFile)
 
 	cli.cfg, err = newConfig(cfgFile)
 	if err != nil {
-		return nil, fmt.Errorf("%s: UserConfigDir: %w", logp, err)
+		return nil, fmt.Errorf(`%s: UserConfigDir: %w`, logp, err)
 	}
 
 	if cli.cfg.isNotExist {
 		cli.cfg.PrivateKey, err = cli.inputPrivateKey(os.Stdin)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", logp, err)
+			return nil, fmt.Errorf(`%s: %w`, logp, err)
 		}
 	}
 	if len(cli.cfg.PrivateKey) > 0 {
 		cli.cfg.privateKey, err = cli.loadPrivateKey(cli.cfg.PrivateKey, nil)
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", logp, err)
+			return nil, fmt.Errorf(`%s: %w`, logp, err)
 		}
 	}
 	if cli.cfg.isNotExist {
 		err = cli.cfg.save()
 		if err != nil {
-			return nil, fmt.Errorf("%s: %w", logp, err)
+			return nil, fmt.Errorf(`%s: %w`, logp, err)
 		}
 	}
 
@@ -68,17 +71,15 @@ func NewCli() (cli *Cli, err error) {
 }
 
 func (cli *Cli) inputPrivateKey(stdin *os.File) (privateKeyFile string, err error) {
-	fmt.Printf("Seems like this is your first time using this gotp.\n")
-	fmt.Printf("If you would like to encrypt the secret, please\n")
-	fmt.Printf("enter the path to private key or enter to skip it: ")
+	fmt.Println(`Seems like this is your first time using this gotp.`)
+	fmt.Println(`If you would like to encrypt the secret, please`)
+	fmt.Printf(`enter the path to private key or enter to skip it: `)
 	fmt.Fscanln(stdin, &privateKeyFile)
 
 	return privateKeyFile, nil
 }
 
-//
 // loadPrivateKey parse the RSA private key with optional passphrase.
-//
 func (cli *Cli) loadPrivateKey(privateKeyFile string, pass []byte) (
 	rsaPrivateKey *rsa.PrivateKey, err error,
 ) {
@@ -87,14 +88,18 @@ func (cli *Cli) loadPrivateKey(privateKeyFile string, pass []byte) (
 	}
 
 	var (
-		logp       = "loadPrivateKey"
+		logp           = `loadPrivateKey`
+		errPassMissing = &ssh.PassphraseMissingError{}
+
 		privateKey interface{}
+		stdin      int
+		rawPem     []byte
 		ok         bool
 	)
 
-	rawPem, err := os.ReadFile(privateKeyFile)
+	rawPem, err = os.ReadFile(privateKeyFile)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", logp, err)
+		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
 	if len(pass) == 0 {
@@ -103,48 +108,48 @@ func (cli *Cli) loadPrivateKey(privateKeyFile string, pass []byte) (
 		privateKey, err = ssh.ParseRawPrivateKeyWithPassphrase(rawPem, pass)
 	}
 	if err != nil {
-		errPassMissing := &ssh.PassphraseMissingError{}
 		if !errors.As(err, &errPassMissing) {
-			return nil, fmt.Errorf("%s %q: %w", logp, privateKeyFile, err)
+			return nil, fmt.Errorf(`%s %q: %w`, logp, privateKeyFile, err)
 		}
 
-		fmt.Printf("Enter passphrase for %s: ", privateKeyFile)
+		fmt.Printf(`Enter passphrase for %s: `, privateKeyFile)
 
-		stdin := os.Stdin.Fd()
-		pass, err := terminal.ReadPassword(int(stdin))
-		fmt.Printf("\n")
+		stdin = int(os.Stdin.Fd())
+
+		pass, err = terminal.ReadPassword(stdin)
+		fmt.Println()
 		if err != nil {
-			return nil, fmt.Errorf("%s %q: %w", logp, privateKeyFile, err)
+			return nil, fmt.Errorf(`%s %q: %w`, logp, privateKeyFile, err)
 		}
 
 		return cli.loadPrivateKey(privateKeyFile, pass)
 	}
 	rsaPrivateKey, ok = privateKey.(*rsa.PrivateKey)
 	if !ok {
-		return nil, fmt.Errorf("%s: invalid or unsupported private key", logp)
+		return nil, fmt.Errorf(`%s: invalid or unsupported private key`, logp)
 	}
 
 	return rsaPrivateKey, nil
 }
 
-//
 // Add new issuer to the config.
-//
 func (cli *Cli) Add(issuer *Issuer) (err error) {
 	if issuer == nil {
 		return nil
 	}
 
-	logp := "Add"
+	var (
+		logp = `Add`
+	)
 
 	err = cli.add(issuer)
 	if err != nil {
-		return fmt.Errorf("%s: %w", logp, err)
+		return fmt.Errorf(`%s: %w`, logp, err)
 	}
 
 	err = cli.cfg.save()
 	if err != nil {
-		return fmt.Errorf("%s: %w", logp, err)
+		return fmt.Errorf(`%s: %w`, logp, err)
 	}
 
 	return nil
@@ -157,16 +162,19 @@ func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 		b32Enc = base32.StdEncoding.WithPadding(base32.NoPadding)
 
 		cryptoHash totp.CryptoHash
+		issuer     *Issuer
+		secret     []byte
+		proto      totp.Protocol
 	)
 
-	issuer, err := cli.cfg.get(label)
+	issuer, err = cli.cfg.get(label)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", logp, err)
+		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
-	secret, err := b32Enc.DecodeString(issuer.Secret)
+	secret, err = b32Enc.DecodeString(issuer.Secret)
 	if err != nil {
-		return nil, fmt.Errorf("%s: secret is not a valid base32 encoding: %w", logp, err)
+		return nil, fmt.Errorf(`%s: secret is not a valid base32 encoding: %w`, logp, err)
 	}
 
 	switch issuer.Hash {
@@ -178,105 +186,116 @@ func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 		cryptoHash = totp.CryptoHashSHA1
 	}
 
-	proto := totp.New(cryptoHash, issuer.Digits, issuer.TimeStep)
+	proto = totp.New(cryptoHash, issuer.Digits, issuer.TimeStep)
 
 	listOtp, err = proto.GenerateN(secret, n)
 	if err != nil {
-		return nil, fmt.Errorf("%s: %w", logp, err)
+		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
 	return listOtp, nil
 }
 
-//
 // Import the TOTP configuration from file format based on provider.
-//
 func (cli *Cli) Import(providerName, file string) (n int, err error) {
-	logp := "Import"
+	var (
+		logp = `Import`
+
+		issuers []*Issuer
+		issuer  *Issuer
+	)
 
 	providerName = strings.ToLower(providerName)
 	switch providerName {
 	case providerNameAegis:
 	default:
-		return 0, fmt.Errorf("%s: unknown provider %q", logp, providerName)
+		return 0, fmt.Errorf(`%s: unknown provider %q`, logp, providerName)
 	}
 
-	issuers, err := parseProviderAegis(file)
+	issuers, err = parseProviderAegis(file)
 	if err != nil {
-		return 0, fmt.Errorf("%s: %w", logp, err)
+		return 0, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
-	for _, issuer := range issuers {
+	for _, issuer = range issuers {
 		err = issuer.validate()
 		if err != nil {
-			return 0, fmt.Errorf("%s: %w", logp, err)
+			return 0, fmt.Errorf(`%s: %w`, logp, err)
 		}
 
 		err = cli.cfg.add(issuer)
 		if err != nil {
-			return 0, fmt.Errorf("%s: %w", logp, err)
+			return 0, fmt.Errorf(`%s: %w`, logp, err)
 		}
 	}
 
 	err = cli.cfg.save()
 	if err != nil {
-		return 0, fmt.Errorf("%s: %w", logp, err)
+		return 0, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
 	return len(issuers), nil
 }
 
-//
 // List all labels sorted in ascending order.
-//
 func (cli *Cli) List() (labels []string) {
-	for label := range cli.cfg.Issuers {
+	var (
+		label string
+	)
+
+	for label = range cli.cfg.Issuers {
 		labels = append(labels, label)
 	}
 	sort.Strings(labels)
 	return labels
 }
 
-//
 // Remove a TOTP configuration by its label.
-//
 func (cli *Cli) Remove(label string) (err error) {
-	logp := "Remove"
+	var (
+		logp = `Remove`
+
+		ok bool
+	)
 
 	label = strings.ToLower(label)
-	_, ok := cli.cfg.Issuers[label]
+
+	_, ok = cli.cfg.Issuers[label]
 	if !ok {
-		return fmt.Errorf("%s: %q not exist", logp, label)
+		return fmt.Errorf(`%s: %q not exist`, logp, label)
 	}
 
 	delete(cli.cfg.Issuers, label)
 
 	err = cli.cfg.save()
 	if err != nil {
-		return fmt.Errorf("%s: %w", logp, err)
+		return fmt.Errorf(`%s: %w`, logp, err)
 	}
 
 	return nil
 }
 
-//
 // Rename a label to newLabel.
 // It will return an error if the label parameter is not exist or newLabel
 // already exist.
-//
 func (cli *Cli) Rename(label, newLabel string) (err error) {
-	logp := "Rename"
+	var (
+		logp = `Rename`
+
+		rawValue string
+		ok       bool
+	)
 
 	label = strings.ToLower(label)
-	rawValue, ok := cli.cfg.Issuers[label]
+	rawValue, ok = cli.cfg.Issuers[label]
 	if !ok {
-		return fmt.Errorf("%s: %q not exist", logp, label)
+		return fmt.Errorf(`%s: %q not exist`, logp, label)
 	}
 
 	newLabel = strings.ToLower(newLabel)
 	_, ok = cli.cfg.Issuers[newLabel]
 	if ok {
-		return fmt.Errorf("%s: new label %q already exist", logp, newLabel)
+		return fmt.Errorf(`%s: new label %q already exist`, logp, newLabel)
 	}
 
 	delete(cli.cfg.Issuers, label)
@@ -285,7 +304,7 @@ func (cli *Cli) Rename(label, newLabel string) (err error) {
 
 	err = cli.cfg.save()
 	if err != nil {
-		return fmt.Errorf("%s: %w", logp, err)
+		return fmt.Errorf(`%s: %w`, logp, err)
 	}
 
 	return nil

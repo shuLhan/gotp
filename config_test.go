@@ -10,33 +10,41 @@ import (
 )
 
 func TestNewConfig(t *testing.T) {
-	cases := []struct {
+	type testCase struct {
+		expConfig  *config
 		desc       string
 		configFile string
-		expConfig  *config
 		expError   string
-	}{{
-		desc:       "With openssh rsa",
-		configFile: "testdata/rsa.conf",
+	}
+
+	var cases = []testCase{{
+		desc:       `With openssh rsa`,
+		configFile: `testdata/rsa.conf`,
 		expConfig: &config{
-			PrivateKey: "testdata/rsa",
+			PrivateKey: `testdata/rsa`,
 			Issuers: map[string]string{
-				"email-domain": "XYZ",
-				"test":         "ABCD",
+				`email-domain`: `XYZ`,
+				`test`:         `ABCD`,
 			},
-			file: "testdata/rsa.conf",
+			file: `testdata/rsa.conf`,
 		},
 	}}
 
-	for _, c := range cases {
+	var (
+		c         testCase
+		gotConfig *config
+		err       error
+	)
+
+	for _, c = range cases {
 		t.Log(c.desc)
 
-		gotConfig, err := newConfig(c.configFile)
+		gotConfig, err = newConfig(c.configFile)
 		if err != nil {
-			test.Assert(t, "error", c.expError, err.Error())
+			test.Assert(t, `error`, c.expError, err.Error())
 			continue
 		}
 
-		test.Assert(t, "Issuer", c.expConfig, gotConfig)
+		test.Assert(t, `Issuer`, c.expConfig, gotConfig)
 	}
 }
