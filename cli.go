@@ -19,7 +19,7 @@ import (
 	"golang.org/x/term"
 )
 
-//go:embed README.adoc
+//go:embed README
 var Readme string
 
 type Cli struct {
