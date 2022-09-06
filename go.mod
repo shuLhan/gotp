@@ -6,11 +6,11 @@ module git.sr.ht/~shulhan/gotp
 go 1.18
 
 require (
-	github.com/shuLhan/share v0.40.0
-	golang.org/x/crypto v0.0.0-20220722155217-630584e8d5aa
-	golang.org/x/term v0.0.0-20220526004731-065cf7ba2467
+	github.com/shuLhan/share v0.41.0
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
+	golang.org/x/term v0.0.0-20220722155259-a9ba230a4035
 )
 
-require golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
+require golang.org/x/sys v0.0.0-20220829200755-d48e67d00261 // indirect
 
 //replace github.com/shuLhan/share => ../share
