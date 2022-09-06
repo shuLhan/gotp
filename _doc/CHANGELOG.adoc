@@ -7,6 +7,25 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_2_2]
+== gotp v0.2.2 (2022-09-06)
+
+[#v0_2_2_bug_fix]
+=== Bug fix
+
+all: fix the go:embed reference to symbolic link::
++
+Due to previous commit, where we rename the README.adoc to README, and
+change it to symbolic link, the build then failed when doing go:embed.
+
+[#v0_2_2_chores]
+=== Chores
+
+all: add task to serve and preview the documentation at _doc::
+
+all: group all documents into directory _doc::
+
+
 [#v0_2_1]
 == gotp v0.2.1 (2022-08-07)
 
