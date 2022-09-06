@@ -1,7 +1,7 @@
 ## SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
 ## SPDX-License-Identifier: GPL-3.0-or-later
 
-.PHONY: all test build install
+.PHONY: all test build install serve-doc
 
 VERSION:=$(shell git describe --tags)
 LDFLAGS:=-ldflags "-s -w -X 'git.sr.ht/~shulhan/gotp.Version=$(VERSION)'"
@@ -18,3 +18,6 @@ build:
 
 install: build
 	install -m755 _bin/gotp $(GOBIN)/
+
+serve-doc:
+	ciigo serve _doc
