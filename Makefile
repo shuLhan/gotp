@@ -13,11 +13,11 @@ test:
 	go tool cover -html=cover.out -o cover.out
 
 build:
-	mkdir -p _bin/
-	go build $(LDFLAGS) -o _bin/ ./cmd/...
+	mkdir -p _sys/usr/bin/
+	go build $(LDFLAGS) -o _sys/usr/bin/ ./cmd/...
 
 install: build
-	install -m755 _bin/gotp $(GOBIN)/
+	install _sys/usr/bin/gotp $(DESTDIR)/usr/bin/
 
 serve-doc:
 	ciigo serve _doc

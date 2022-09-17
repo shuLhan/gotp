@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
 // SPDX-License-Identifier: GPL-3.0-or-later
 *.html
-_bin/
+_sys/usr/bin/
 cover.out
 testdata/add.conf
 testdata/save.conf
