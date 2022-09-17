@@ -1,0 +1,57 @@
+#/usr/bin/env bash
+## SPDX-FileCopyrightText: 2022 M. Shulhan <ms@kilabit.info>
+## SPDX-License-Identifier: GPL-3.0-or-later
+
+suggest_key() {
+	keys=($(gotp list))
+	if [[ -z $1 ]]; then
+		COMPREPLY=("${keys[@]}")
+	else
+		local list="${keys[@]}"
+		local got=($(compgen -W "$list" -- "$1"))
+		COMPREPLY=("${got[@]}")
+	fi
+}
+
+_gotp_completions()
+{
+	commands=("add" "gen" "import" "list" "remove" "rename")
+
+	local len=${#COMP_WORDS[@]}
+	local cmd=${COMP_WORDS[1]}
+	local key=${COMP_WORDS[2]}
+
+	case "$cmd" in
+		add)
+			;;
+		gen)
+			if [[ $len == 3 ]]; then
+				suggest_key "$key"
+			fi
+			;;
+		import)
+			;;
+		list)
+			;;
+		remove)
+			if [[ $len == 3 ]]; then
+				suggest_key "$key"
+			fi
+			;;
+		rename)
+			if [[ $len == 3 ]]; then
+				suggest_key "$key"
+			fi
+			;;
+		*)
+			if [[ -z $cmd ]]; then
+				COMPREPLY=("${commands[@]}")
+			else
+				list="${commands[@]}"
+				COMPREPLY=($(compgen -W "$list" -- "$cmd"))
+			fi
+			;;
+	esac
+}
+
+complete -F _gotp_completions gotp

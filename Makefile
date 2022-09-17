@@ -18,6 +18,7 @@ build:
 
 install: build
 	install -D _sys/usr/bin/gotp $(DESTDIR)/usr/bin/gotp
+	install -Dm644 _sys/etc/bash_completion.d/gotp $(DESTDIR)/etc/bash_completion.d/gotp
 	install -Dm644 COPYING $(DESTDIR)/usr/share/licenses/gotp/COPYING
 
 serve-doc:
