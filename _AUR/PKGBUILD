@@ -1,7 +1,9 @@
 # Maintainer: shulhan <ms@kilabit.info>
+## SPDX-FileCopyrightText: 2022 M. Shulhan <ms@kilabit.info>
+## SPDX-License-Identifier: GPL-3.0-or-later
 
 pkgname=gotp-git
-pkgver=0.2.0.r5.gdbfed69
+pkgver=0.2.2.r2.g008f3a5
 pkgrel=1
 
 pkgdesc="A command line interface to manage and generate Time-based One Time Password (TOTP)"
@@ -16,10 +18,9 @@ makedepends=(
 
 provides=('awwan')
 
-source=(
-	"$pkgname::git+https://git.sr.ht/~shulhan/gotp"
-	#"$pkgname::git+file:///home/ms/go/src/git.sr.ht/~shulhan/gotp"
-)
+source=("$pkgname::git+https://git.sr.ht/~shulhan/gotp")
+#source=("$pkgname::git+file:///home/ms/go/src/git.sr.ht/~shulhan/gotp")
+
 md5sums=(
 	'SKIP'
 )
@@ -36,6 +37,5 @@ build() {
 
 package() {
 	cd "$pkgname"
-	install -Dm755 _bin/gotp $pkgdir/usr/bin/gotp
-	install -Dm755 COPYING $pkgdir/usr/share/licenses/gotp/COPYING
+	make DESTDIR="$pkgdir" install
 }

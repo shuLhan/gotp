@@ -17,7 +17,8 @@ build:
 	go build $(LDFLAGS) -o _sys/usr/bin/ ./cmd/...
 
 install: build
-	install _sys/usr/bin/gotp $(DESTDIR)/usr/bin/
+	install -D _sys/usr/bin/gotp $(DESTDIR)/usr/bin/gotp
+	install -Dm644 COPYING $(DESTDIR)/usr/share/licenses/gotp/COPYING
 
 serve-doc:
 	ciigo serve _doc
