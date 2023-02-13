@@ -7,6 +7,26 @@ Shulhan <ms@kilabit.info>
 :sectlinks:
 
 
+[#v0_2_3]
+== gotp v0.2.3 (2023-02-12)
+
+[#v0_2_3_enhancements]
+===  Enhancements
+
+all: add bash completion script::
+
+[#v0_2_3_chores]
+===  Chores
+
+all: move the installation steps in AUR to Makefile::
+
+
+make: change the build and install directory::
++
+The build task now create binary under _sys/usr/bin/, while the install
+task install the binary based on $DESTDIR environment variable, not $GOBIN.
+
+
 [#v0_2_2]
 == gotp v0.2.2 (2022-09-06)
 
