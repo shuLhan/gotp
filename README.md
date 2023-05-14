@@ -1,17 +1,17 @@
-// SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
-// SPDX-License-Identifier: GPL-3.0-or-later
-= gotp
-Shulhan <ms@kilabit.info>
+# gotp
 
 A command line interface to manage and generate Time-based One Time Password
 (TOTP).
 
-== SYNOPSIS
+## SYNOPSIS
 
-	gotp <command> <parameters...>
+```
+gotp <command> <parameters...>
+```
 
-== DESCRIPTION
+## DESCRIPTION
 
+```
 add <LABEL> <HASH>:<BASE32-SECRET>[:DIGITS][:TIME-STEP][:ISSUER]
 
 	Add a TOTP secret identified by unique LABEL.
@@ -47,8 +47,9 @@ remove <LABEL>
 rename <LABEL> <NEW-LABEL>
 
 	Rename a LABEL into NEW-LABEL.
+```
 
-==  ENCRYPTION
+##  ENCRYPTION
 
 On the first run, the gotp command will ask for path of private key.
 If the key exist, all the OTP values (excluding the label) will be encrypted.
@@ -57,46 +58,58 @@ The private key must be RSA based.
 One can skip inputting the private key by pressing enter, and the OTP
 configuration will be stored as plain text.
 
-==  FILES
+##  FILES
 
 $USER_CONFIG_DIR/gotp/gotp.conf:: Path to file where the configuration and
 secret are stored.
 
-==  EXAMPLES
+##  EXAMPLES
 
 Add "my-totp" to configuration using SHA1 as hash function, "GEZDGNBVGY3TQOJQ"
 as the secret, with 6 digits passwords, and 30 seconds as time step.
 
-	$ gotp add my-totp SHA1:GEZDGNBVGY3TQOJQ:6:30
+```
+$ gotp add my-totp SHA1:GEZDGNBVGY3TQOJQ:6:30
+```
 
 Generate 3 recents passwords from "my-totp",
 
-	$ gotp gen my-totp 3
-	gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
-	847945
-	326823
-	767317
+```
+$ gotp gen my-totp 3
+gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
+847945
+326823
+767317
+```
 
 Import the exported Aegis TOTP from file,
 
-	$ gotp import aegis aegis-export-uri.txt
-	gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
-	OK
+```
+$ gotp import aegis aegis-export-uri.txt
+gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
+OK
+```
 
 List all labels stored in the configuration,
 
-	$ gotp list
-	gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
-	my-totp
+```
+$ gotp list
+gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
+my-totp
+```
 
 Remove a label "my-totp",
 
-	$ gotp remove my-totp
-	gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
-	OK
+```
+$ gotp remove my-totp
+gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
+OK
+```
 
 Rename a label "my-totp" to "my-otp",
 
-	$ gotp rename my-totp my-otp
-	gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
-	OK
+```
+$ gotp rename my-totp my-otp
+gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
+OK
+```
