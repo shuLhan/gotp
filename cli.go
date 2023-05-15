@@ -306,6 +306,52 @@ func (cli *Cli) Rename(label, newLabel string) (err error) {
 	return nil
 }
 
+// SetPrivateKey encrypt all the OTP secret using the private key.
+// The only accepted private key is RSA.
+func (cli *Cli) SetPrivateKey(privateKeyFile string) (err error) {
+	var (
+		logp          = `SetPrivateKey`
+		oldIssuers    = cli.cfg.Issuers
+		oldPrivateKey = cli.cfg.privateKey
+	)
+
+	cli.cfg.privateKey, err = loadPrivateKey(privateKeyFile, nil)
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	var (
+		issuer *Issuer
+		label  string
+		raw    string
+	)
+
+	cli.cfg.Issuers = map[string]string{}
+
+	for label, raw = range oldIssuers {
+		// Decrypt the old issuer using old private key.
+		issuer, err = NewIssuer(label, raw, oldPrivateKey)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
+
+		// Add it to the config back using new private key.
+		err = cli.cfg.add(issuer)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
+	}
+
+	cli.cfg.PrivateKey = privateKeyFile
+
+	err = cli.cfg.save()
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	return nil
+}
+
 func (cli *Cli) add(issuer *Issuer) (err error) {
 	err = issuer.validate()
 	if err != nil {

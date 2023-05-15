@@ -47,6 +47,11 @@ remove <LABEL>
 rename <LABEL> <NEW-LABEL>
 
 	Rename a LABEL into NEW-LABEL.
+
+set-private-key <PRIVATE-KEY-FILE>
+
+    Encrypt the issuer's value (hash:secret...) in the file using private key.
+    The supported private key is RSA.
 ```
 
 ##  ENCRYPTION

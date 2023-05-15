@@ -17,14 +17,15 @@ import (
 )
 
 const (
-	cmdName     = `gotp`
-	cmdAdd      = `add`
-	cmdGenerate = `gen`
-	cmdImport   = `import`
-	cmdList     = `list`
-	cmdRemove   = `remove`
-	cmdRename   = `rename`
-	cmdVersion  = `version`
+	cmdName          = `gotp`
+	cmdAdd           = `add`
+	cmdGenerate      = `gen`
+	cmdImport        = `import`
+	cmdList          = `list`
+	cmdRemove        = `remove`
+	cmdRename        = `rename`
+	cmdSetPrivateKey = `set-private-key`
+	cmdVersion       = `version`
 )
 
 func main() {
@@ -80,6 +81,12 @@ func main() {
 			os.Exit(1)
 		}
 
+	case cmdSetPrivateKey:
+		if len(args) <= 1 {
+			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
+			os.Exit(1)
+		}
+
 	case cmdVersion:
 		fmt.Println(`gotp v`, gotp.Version)
 		return
@@ -108,6 +115,8 @@ func main() {
 		doRemove(cli, args)
 	case cmdRename:
 		doRename(cli, args)
+	case cmdSetPrivateKey:
+		doSetPrivateKey(cli, args)
 	}
 }
 
@@ -218,4 +227,11 @@ func doRename(cli *gotp.Cli, args []string) {
 		os.Exit(1)
 	}
 	fmt.Println(`OK`)
+}
+
+func doSetPrivateKey(cli *gotp.Cli, args []string) {
+	var err = cli.SetPrivateKey(args[1])
+	if err != nil {
+		log.Fatalf(`%s: %s`, cmdName, err)
+	}
 }

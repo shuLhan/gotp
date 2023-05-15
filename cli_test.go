@@ -4,6 +4,7 @@
 package gotp
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"testing"
@@ -136,4 +137,75 @@ private_key =
 
 		test.Assert(t, cli.cfg.file, c.expConfig, string(got))
 	}
+}
+
+func TestCli_SetPrivateKey(t *testing.T) {
+	var (
+		tdata *test.Data
+		err   error
+	)
+
+	tdata, err = test.LoadData(`testdata/cli_SetPrivateKey_test.txt`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var (
+		cli       = &Cli{}
+		rawConfig []byte
+		cfg       *config
+	)
+
+	rawConfig = tdata.Input[`config.ini.before`]
+
+	cfg, err = loadConfig(rawConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cli.cfg = cfg
+
+	// Set the private key.
+
+	err = cli.SetPrivateKey(tdata.Flag[`private_key_openssl`])
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Change the private key.
+
+	err = cli.SetPrivateKey(tdata.Flag[`private_key_openssl`])
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rawConfig, err = cli.cfg.MarshalText()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Load the encrypted raw config and compare the issuer.
+
+	cfg, err = loadConfig(rawConfig)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cli.cfg = cfg
+
+	var (
+		gotLabels []string = cli.List()
+		label     string
+		issuer    *Issuer
+		got       bytes.Buffer
+	)
+
+	for _, label = range gotLabels {
+		issuer, err = cli.cfg.get(label)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		fmt.Fprintf(&got, "%s = %s\n", label, issuer.String())
+	}
+
+	test.Assert(t, `get all labels`, string(tdata.Output[`issuers`]), got.String())
 }

@@ -15,7 +15,7 @@ suggest_key() {
 
 _gotp_completions()
 {
-	commands=("add" "gen" "import" "list" "remove" "rename")
+	commands=("add" "gen" "import" "list" "remove" "rename" "set-private-key")
 
 	local len=${#COMP_WORDS[@]}
 	local cmd=${COMP_WORDS[1]}
@@ -42,6 +42,8 @@ _gotp_completions()
 			if [[ $len == 3 ]]; then
 				suggest_key "$key"
 			fi
+			;;
+		set-private-key)
 			;;
 		*)
 			if [[ -z $cmd ]]; then
