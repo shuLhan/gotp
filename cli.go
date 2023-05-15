@@ -271,6 +271,50 @@ func (cli *Cli) Remove(label string) (err error) {
 	return nil
 }
 
+// RemovePrivateKey Decrypt the issuer's value (hash:secret...) using previous
+// private key and store it back to file as plain text.
+func (cli *Cli) RemovePrivateKey() (err error) {
+	if cli.cfg.privateKey == nil {
+		return nil
+	}
+
+	var (
+		logp          = `RemovePrivateKey`
+		oldPrivateKey = cli.cfg.privateKey
+		oldIssuers    = cli.cfg.Issuers
+
+		issuer *Issuer
+		label  string
+		raw    string
+	)
+
+	cli.cfg.privateKey = nil
+	cli.cfg.Issuers = map[string]string{}
+
+	for label, raw = range oldIssuers {
+		// Decrypt the issuer using old private key.
+		issuer, err = NewIssuer(label, raw, oldPrivateKey)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
+
+		// Add it to the config back as plain text.
+		err = cli.cfg.add(issuer)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
+	}
+
+	cli.cfg.PrivateKey = ``
+
+	err = cli.cfg.save()
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	return nil
+}
+
 // Rename a label to newLabel.
 // It will return an error if the label parameter is not exist or newLabel
 // already exist.

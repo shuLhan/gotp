@@ -44,6 +44,11 @@ remove <LABEL>
 
 	Remove LABEL from configuration.
 
+remove-private-key
+
+    Decrypt the issuer's value (hash:secret...) using previous private key and
+    store it back to file as plain text.
+
 rename <LABEL> <NEW-LABEL>
 
 	Rename a LABEL into NEW-LABEL.

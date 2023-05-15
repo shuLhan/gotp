@@ -156,7 +156,7 @@ func TestCli_SetPrivateKey(t *testing.T) {
 		cfg       *config
 	)
 
-	rawConfig = tdata.Input[`config.ini.before`]
+	rawConfig = tdata.Input[`config.ini`]
 
 	cfg, err = loadConfig(rawConfig)
 	if err != nil {
@@ -208,4 +208,21 @@ func TestCli_SetPrivateKey(t *testing.T) {
 	}
 
 	test.Assert(t, `get all labels`, string(tdata.Output[`issuers`]), got.String())
+
+	// Remove the private key, and compare the plain config.
+
+	err = cli.RemovePrivateKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var gotConfig []byte
+
+	gotConfig, err = cli.cfg.MarshalText()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rawConfig = tdata.Input[`config.ini`]
+	test.Assert(t, `RemovePrivateKey`, string(rawConfig), string(gotConfig))
 }

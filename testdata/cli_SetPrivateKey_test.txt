@@ -3,7 +3,7 @@ private_key_openssh: testdata/keys/rsa-openssh.pem
 
 Test setting private key from unencrypted configuration.
 
->>> config.ini.before
+>>> config.ini
 [gotp "issuer"]
 test1 = SHA1:a:6:30:
 test2 = SHA1:b:6:30:
