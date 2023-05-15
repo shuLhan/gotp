@@ -53,14 +53,12 @@ func NewCli() (cli *Cli, err error) {
 		if err != nil {
 			return nil, fmt.Errorf(`%s: %w`, logp, err)
 		}
-	}
-	if len(cli.cfg.PrivateKey) > 0 {
-		cli.cfg.privateKey, err = cli.loadPrivateKey(cli.cfg.PrivateKey, nil)
-		if err != nil {
-			return nil, fmt.Errorf(`%s: %w`, logp, err)
+		if len(cli.cfg.PrivateKey) > 0 {
+			cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+			if err != nil {
+				return nil, fmt.Errorf(`%s: %w`, logp, err)
+			}
 		}
-	}
-	if cli.cfg.isNotExist {
 		err = cli.cfg.save()
 		if err != nil {
 			return nil, fmt.Errorf(`%s: %w`, logp, err)
@@ -80,9 +78,7 @@ func (cli *Cli) inputPrivateKey(stdin *os.File) (privateKeyFile string, err erro
 }
 
 // loadPrivateKey parse the RSA private key with optional passphrase.
-func (cli *Cli) loadPrivateKey(privateKeyFile string, pass []byte) (
-	rsaPrivateKey *rsa.PrivateKey, err error,
-) {
+func loadPrivateKey(privateKeyFile string, pass []byte) (rsaPrivateKey *rsa.PrivateKey, err error) {
 	if len(privateKeyFile) == 0 {
 		return nil, nil
 	}
@@ -122,7 +118,7 @@ func (cli *Cli) loadPrivateKey(privateKeyFile string, pass []byte) (
 			return nil, fmt.Errorf(`%s %q: %w`, logp, privateKeyFile, err)
 		}
 
-		return cli.loadPrivateKey(privateKeyFile, pass)
+		return loadPrivateKey(privateKeyFile, pass)
 	}
 	rsaPrivateKey, ok = privateKey.(*rsa.PrivateKey)
 	if !ok {

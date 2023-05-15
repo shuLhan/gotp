@@ -52,6 +52,8 @@ func TestNewConfig(t *testing.T) {
 			continue
 		}
 
+		gotConfig.privateKey = nil
+
 		test.Assert(t, `Issuer`, c.expConfig, gotConfig)
 	}
 }

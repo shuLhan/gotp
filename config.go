@@ -77,6 +77,13 @@ func loadConfig(content []byte) (cfg *config, err error) {
 		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
+	if len(cfg.PrivateKey) > 0 {
+		cfg.privateKey, err = loadPrivateKey(cfg.PrivateKey, nil)
+		if err != nil {
+			return nil, fmt.Errorf(`%s: %w`, logp, err)
+		}
+	}
+
 	return cfg, nil
 }
 
