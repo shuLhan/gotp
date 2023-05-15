@@ -87,6 +87,16 @@ func loadConfig(content []byte) (cfg *config, err error) {
 	return cfg, nil
 }
 
+// MarshalText convert the config object back to INI format.
+func (cfg *config) MarshalText() (text []byte, err error) {
+	var logp = `MarshalText`
+	text, err = ini.Marshal(cfg)
+	if err != nil {
+		return nil, fmt.Errorf(`%s: %w`, logp, err)
+	}
+	return text, nil
+}
+
 func (cfg *config) add(issuer *Issuer) (err error) {
 	var (
 		value string
@@ -144,7 +154,7 @@ func (cfg *config) save() (err error) {
 		b []byte
 	)
 
-	b, err = ini.Marshal(cfg)
+	b, err = cfg.MarshalText()
 	if err != nil {
 		return fmt.Errorf(`%s %s: %w`, logp, cfg.file, err)
 	}
