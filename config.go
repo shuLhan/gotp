@@ -148,6 +148,10 @@ func (cfg *config) get(name string) (issuer *Issuer, err error) {
 
 // save the config to file.
 func (cfg *config) save() (err error) {
+	if len(cfg.file) == 0 {
+		return nil
+	}
+
 	var (
 		logp = `save`
 
