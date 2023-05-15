@@ -33,33 +33,46 @@ func newConfig(file string) (cfg *config, err error) {
 	var (
 		logp = `newConfig`
 
-		in  *ini.Ini
-		dir string
+		content    []byte
+		isNotExist bool
 	)
 
-	cfg = &config{
-		Issuers: make(map[string]string),
-		file:    file,
-	}
-
-	in, err = ini.Open(file)
+	content, err = os.ReadFile(file)
 	if err != nil {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return nil, fmt.Errorf(`%s: Open %q: %w`, logp, file, err)
 		}
-		cfg.isNotExist = true
+		isNotExist = true
 	}
 
-	if cfg.isNotExist {
-		dir = filepath.Dir(file)
+	if isNotExist {
+		var dir = filepath.Dir(file)
 		err = os.MkdirAll(dir, 0700)
 		if err != nil {
 			return nil, fmt.Errorf(`%s: MkdirAll %q: %w`, logp, dir, err)
 		}
-		return cfg, nil
 	}
 
-	err = in.Unmarshal(cfg)
+	cfg, err = loadConfig(content)
+	if err != nil {
+		return nil, fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	cfg.isNotExist = isNotExist
+	cfg.file = file
+
+	return cfg, nil
+}
+
+// loadConfig load configuration from raw bytes.
+func loadConfig(content []byte) (cfg *config, err error) {
+	var logp = `loadConfig`
+
+	cfg = &config{
+		Issuers: make(map[string]string),
+	}
+
+	err = ini.Unmarshal(content, cfg)
 	if err != nil {
 		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}

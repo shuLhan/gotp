@@ -18,6 +18,13 @@ func TestNewConfig(t *testing.T) {
 	}
 
 	var cases = []testCase{{
+		desc:       `With file not exist`,
+		configFile: `testdata/config-not-exist`,
+		expConfig: &config{
+			file:       `testdata/config-not-exist`,
+			isNotExist: true,
+		},
+	}, {
 		desc:       `With openssh rsa`,
 		configFile: `testdata/rsa.conf`,
 		expConfig: &config{
