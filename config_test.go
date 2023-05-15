@@ -26,14 +26,14 @@ func TestNewConfig(t *testing.T) {
 		},
 	}, {
 		desc:       `With openssh rsa`,
-		configFile: `testdata/rsa.conf`,
+		configFile: `testdata/with_private_key.conf`,
 		expConfig: &config{
-			PrivateKey: `testdata/rsa`,
+			PrivateKey: `testdata/keys/rsa-openssl.pem`,
 			Issuers: map[string]string{
 				`email-domain`: `XYZ`,
 				`test`:         `ABCD`,
 			},
-			file: `testdata/rsa.conf`,
+			file: `testdata/with_private_key.conf`,
 		},
 	}}
 
