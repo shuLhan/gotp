@@ -6,6 +6,28 @@ Shulhan <ms@kilabit.info>
 :sectanchors:
 :sectlinks:
 
+[#v0_3_0]
+== gotp v0.3.0 (2023-05-17)
+
+[#v0_3_0__new_features]
+=== New features
+
+all: add command to remove the private key::
++
+The remove-private-key decrypt the issuer's value back using previous
+private key and store it back to file as plain text.
+
+all: add command to set private key::
++
+The set-private-key command encrypt the issuer's value (hash:secret...)
+in the file using private key.
+The supported private key is RSA.
+
+[#v0_3_0__chores]
+=== Chores
+
+all: update Go version to 1.19 and all dependencies::
+
 
 [#v0_2_3]
 == gotp v0.2.3 (2023-02-12)
