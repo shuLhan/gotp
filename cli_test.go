@@ -191,6 +191,11 @@ func TestCli_SetPrivateKey(t *testing.T) {
 	}
 	cli.cfg = cfg
 
+	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	var (
 		gotLabels []string = cli.List()
 		label     string

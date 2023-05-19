@@ -134,9 +134,12 @@ func (cli *Cli) Add(issuer *Issuer) (err error) {
 		return nil
 	}
 
-	var (
-		logp = `Add`
-	)
+	var logp = `Add`
+
+	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
 
 	err = cli.add(issuer)
 	if err != nil {
@@ -162,6 +165,11 @@ func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 		secret     []byte
 		proto      totp.Protocol
 	)
+
+	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	if err != nil {
+		return nil, fmt.Errorf(`%s: %w`, logp, err)
+	}
 
 	issuer, err = cli.cfg.get(label)
 	if err != nil {
@@ -200,6 +208,11 @@ func (cli *Cli) Import(providerName, file string) (n int, err error) {
 		issuers []*Issuer
 		issuer  *Issuer
 	)
+
+	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	if err != nil {
+		return 0, fmt.Errorf(`%s: %w`, logp, err)
+	}
 
 	providerName = strings.ToLower(providerName)
 	switch providerName {
@@ -278,8 +291,14 @@ func (cli *Cli) RemovePrivateKey() (err error) {
 		return nil
 	}
 
+	var logp = `RemovePrivateKey`
+
+	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
 	var (
-		logp          = `RemovePrivateKey`
 		oldPrivateKey = cli.cfg.privateKey
 		oldIssuers    = cli.cfg.Issuers
 
