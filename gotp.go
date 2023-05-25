@@ -25,7 +25,7 @@ const (
 )
 
 var (
-	Version = `0.3.0`
+	Version = `0.3.1`
 )
 
 // normalizeLabel convert non alpha number, hyphen, underscore, or period
