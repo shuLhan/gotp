@@ -13,6 +13,7 @@ import (
 	"strings"
 
 	"github.com/shuLhan/share/lib/ini"
+	libos "github.com/shuLhan/share/lib/os"
 )
 
 const (
@@ -42,18 +43,18 @@ func newConfig(file string) (cfg *config, err error) {
 		if !errors.Is(err, fs.ErrNotExist) {
 			return nil, fmt.Errorf(`%s: Open %q: %w`, logp, file, err)
 		}
-		isNotExist = true
-	}
 
-	if isNotExist {
 		var dir = filepath.Dir(file)
 		err = os.MkdirAll(dir, 0700)
 		if err != nil {
 			return nil, fmt.Errorf(`%s: MkdirAll %q: %w`, logp, dir, err)
 		}
+		isNotExist = true
 	}
 
-	cfg, err = loadConfig(content)
+	cfg = &config{}
+
+	err = cfg.UnmarshalText(content)
 	if err != nil {
 		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
@@ -64,25 +65,40 @@ func newConfig(file string) (cfg *config, err error) {
 	return cfg, nil
 }
 
-// loadConfig load configuration from raw bytes.
-func loadConfig(content []byte) (cfg *config, err error) {
-	var logp = `loadConfig`
+// UnmarshalText load configuration from raw bytes.
+func (cfg *config) UnmarshalText(content []byte) (err error) {
+	var logp = `UnmarshalText`
 
-	cfg = &config{
-		Issuers: make(map[string]string),
+	cfg.Issuers = make(map[string]string)
+
+	if len(content) > 0 {
+		err = ini.Unmarshal(content, cfg)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
 	}
 
-	err = ini.Unmarshal(content, cfg)
-	if err != nil {
-		return nil, fmt.Errorf(`%s: %w`, logp, err)
+	if len(cfg.PrivateKey) != 0 {
+		cfg.PrivateKey, err = libos.PathUnfold(cfg.PrivateKey)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
 	}
 
-	return cfg, nil
+	return nil
 }
 
 // MarshalText convert the config object back to INI format.
 func (cfg *config) MarshalText() (text []byte, err error) {
 	var logp = `MarshalText`
+
+	if len(cfg.PrivateKey) != 0 {
+		cfg.PrivateKey, err = libos.PathFold(cfg.PrivateKey)
+		if err != nil {
+			return nil, fmt.Errorf(`%s: %w`, logp, err)
+		}
+	}
+
 	text, err = ini.Marshal(cfg)
 	if err != nil {
 		return nil, fmt.Errorf(`%s: %w`, logp, err)

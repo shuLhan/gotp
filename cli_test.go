@@ -151,14 +151,15 @@ func TestCli_SetPrivateKey(t *testing.T) {
 	}
 
 	var (
-		cli       = &Cli{}
+		cli = &Cli{}
+		cfg = &config{}
+
 		rawConfig []byte
-		cfg       *config
 	)
 
 	rawConfig = tdata.Input[`config.ini`]
 
-	cfg, err = loadConfig(rawConfig)
+	err = cfg.UnmarshalText(rawConfig)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -185,7 +186,7 @@ func TestCli_SetPrivateKey(t *testing.T) {
 
 	// Load the encrypted raw config and compare the issuer.
 
-	cfg, err = loadConfig(rawConfig)
+	err = cfg.UnmarshalText(rawConfig)
 	if err != nil {
 		t.Fatal(err)
 	}
