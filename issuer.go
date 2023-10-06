@@ -57,6 +57,9 @@ func NewIssuer(label, rawConfig string, rsaPrivateKey *rsa.PrivateKey) (issuer *
 	if len(vals) < 2 {
 		return nil, fmt.Errorf(`%s: invalid value %q`, logp, rawConfig)
 	}
+
+	label = strings.ToLower(label)
+
 	issuer = &Issuer{
 		Label:  label,
 		Hash:   vals[0],
