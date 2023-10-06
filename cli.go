@@ -19,13 +19,17 @@ import (
 	"golang.org/x/term"
 )
 
+// Readme embed the README.md, rendered in "gotp help".
+//
 //go:embed README.md
 var Readme string
 
+// Cli define the command line interface for gotp program.
 type Cli struct {
 	cfg *config
 }
 
+// NewCli create and initialize new CLI for gotp program.
 func NewCli() (cli *Cli, err error) {
 	var (
 		logp = `NewCli`

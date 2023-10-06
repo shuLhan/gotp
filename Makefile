@@ -3,11 +3,17 @@
 
 .PHONY: all test build install serve-doc
 
-all: test build
+all: test lint build
 
 test:
 	CGO_ENABLED=1 go test -race -failfast -coverprofile=cover.out ./...
 	go tool cover -html=cover.out -o cover.html
+
+.PHONY: lint
+lint:
+	-revive ./...
+	-fieldalignment ./...
+	-shadow ./...
 
 build:
 	mkdir -p _sys/usr/bin/

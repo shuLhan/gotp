@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// Package gotp core library for building gotp CLI.
 package gotp
 
 import (
@@ -24,15 +25,14 @@ const (
 	providerNameAegis = `aegis`
 )
 
-var (
-	Version = `0.3.1`
-)
+// Version define the latest version of this module and gotp CLI.
+var Version = `0.3.1`
 
 // normalizeLabel convert non alpha number, hyphen, underscore, or period
 // characters into `-`.
 func normalizeLabel(in string) (out string) {
 	var (
-		replacement rune = '-'
+		replacement = '-'
 
 		buf strings.Builder
 		r   rune

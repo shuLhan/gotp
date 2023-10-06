@@ -198,10 +198,11 @@ func TestCli_SetPrivateKey(t *testing.T) {
 	}
 
 	var (
-		gotLabels []string = cli.List()
-		label     string
-		issuer    *Issuer
-		got       bytes.Buffer
+		gotLabels = cli.List()
+
+		label  string
+		issuer *Issuer
+		got    bytes.Buffer
 	)
 
 	for _, label = range gotLabels {

@@ -149,8 +149,8 @@ func doAdd(cli *gotp.Cli, args []string) {
 
 func doGenerate(cli *gotp.Cli, args []string) {
 	var (
-		label     = args[1]
-		n     int = 1
+		label = args[1]
+		n     = 1
 
 		listOtp []string
 		otp     string
