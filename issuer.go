@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 
+	libcrypto "github.com/shuLhan/share/lib/crypto"
 	"github.com/shuLhan/share/lib/ini"
 	"github.com/shuLhan/share/lib/totp"
 )
@@ -44,7 +45,7 @@ func NewIssuer(label, rawConfig string, rsaPrivateKey *rsa.PrivateKey) (issuer *
 			return nil, fmt.Errorf(`%s: %w`, logp, err)
 		}
 
-		vbytes, err = rsa.DecryptOAEP(sha256.New(), rand.Reader, rsaPrivateKey, vbytes, nil)
+		vbytes, err = libcrypto.DecryptOaep(sha256.New(), rand.Reader, rsaPrivateKey, vbytes, nil)
 		if err != nil {
 			return nil, fmt.Errorf(`%s: %w`, logp, err)
 		}
@@ -104,7 +105,7 @@ func (issuer *Issuer) pack(privateKey *rsa.PrivateKey) (value string, err error)
 		return string(issuer.raw), nil
 	}
 
-	issuer.raw, err = rsa.EncryptOAEP(sha256.New(), rng, &privateKey.PublicKey, issuer.raw, nil)
+	issuer.raw, err = libcrypto.EncryptOaep(sha256.New(), rng, &privateKey.PublicKey, issuer.raw, nil)
 	if err != nil {
 		return ``, fmt.Errorf(`%s: %w`, logp, err)
 	}
