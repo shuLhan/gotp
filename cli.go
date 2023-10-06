@@ -198,6 +198,25 @@ func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 	return listOtp, nil
 }
 
+// Get the stored Issuer by its label.
+func (cli *Cli) Get(label string) (issuer *Issuer, err error) {
+	var logp = `Get`
+
+	if cli.cfg.privateKey == nil {
+		cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+		if err != nil {
+			return nil, fmt.Errorf(`%s: %w`, logp, err)
+		}
+	}
+
+	issuer, err = cli.cfg.get(label)
+	if err != nil {
+		return nil, fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	return issuer, nil
+}
+
 // Import the TOTP configuration from file format based on provider.
 func (cli *Cli) Import(providerName, file string) (n int, err error) {
 	var (

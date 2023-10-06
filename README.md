@@ -30,6 +30,11 @@ gen <LABEL> [N]
 
 	Generate N number passwords using the secret identified by LABEL.
 
+get <LABEL>
+
+    Get and print the issuer by its LABEL.
+    This will print the issuer secret, unencrypted.
+
 import <PROVIDER> <FILE>
 
 	Import the TOTP configuration from other provider.

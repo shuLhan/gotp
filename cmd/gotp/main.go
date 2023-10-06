@@ -21,6 +21,7 @@ const (
 	cmdName             = `gotp`
 	cmdAdd              = `add`
 	cmdGenerate         = `gen`
+	cmdGet              = `get`
 	cmdImport           = `import`
 	cmdList             = `list`
 	cmdRemove           = `remove`
@@ -68,6 +69,12 @@ func main() {
 			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
 			os.Exit(1)
 		}
+	case cmdGet:
+		args = args[1:]
+		if len(args) == 0 {
+			log.Fatalf(`%s %s: missing parameters`, cmdName, cmd)
+		}
+
 	case cmdImport:
 		if len(args) <= 2 {
 			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
@@ -123,6 +130,8 @@ func main() {
 		doAdd(cli, args)
 	case cmdGenerate:
 		doGenerate(cli, args)
+	case cmdGet:
+		doGet(cli, args[0])
 	case cmdImport:
 		doImport(cli, args)
 	case cmdList:
@@ -186,6 +195,21 @@ func doGenerate(cli *gotp.Cli, args []string) {
 	for _, otp = range listOtp {
 		fmt.Println(otp)
 	}
+}
+
+// doGet execute the "get" command to print the issuer by "label".
+func doGet(cli *gotp.Cli, label string) {
+	var (
+		issuer *gotp.Issuer
+		err    error
+	)
+
+	issuer, err = cli.Get(label)
+	if err != nil {
+		log.Fatalf(`%s: %s`, cmdName, err)
+	}
+
+	fmt.Println(issuer.String())
 }
 
 func doImport(cli *gotp.Cli, args []string) {

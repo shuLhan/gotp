@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/shuLhan/share/lib/test"
@@ -232,4 +233,48 @@ func TestCli_SetPrivateKey(t *testing.T) {
 
 	rawConfig = tdata.Input[`config.ini`]
 	test.Assert(t, `RemovePrivateKey`, string(rawConfig), string(gotConfig))
+}
+
+func TestCli_ViewEncrypted(t *testing.T) {
+	var (
+		configDir = t.TempDir()
+
+		cli *Cli
+		err error
+	)
+
+	cli, err = NewCli(configDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var privateKeyFile = filepath.Join(`testdata`, `keys`, `rsa-openssh.pem`)
+
+	err = cli.SetPrivateKey(privateKeyFile)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var issA *Issuer
+
+	issA, err = NewIssuer(`testA`, `SHA1:TESTA`, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = cli.Add(issA)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var gotIssA *Issuer
+
+	gotIssA, err = cli.Get(`testA`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Reset the raw issuer value for comparison.
+	issA.raw = nil
+	test.Assert(t, `Get: testA`, issA, gotIssA)
 }
