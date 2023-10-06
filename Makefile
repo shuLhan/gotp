@@ -24,5 +24,19 @@ install: build
 	install -Dm644 _sys/etc/bash_completion.d/gotp $(DESTDIR)/etc/bash_completion.d/gotp
 	install -Dm644 COPYING $(DESTDIR)/usr/share/licenses/gotp/COPYING
 
+.PHONY: install-darwin
+install-darwin: DESTDIR=/usr/local
+install-darwin: build
+	install -D _sys/usr/bin/gotp $(DESTDIR)/bin/gotp
+	install -Dm644 _sys/etc/bash_completion.d/gotp $(DESTDIR)/etc/bash_completion.d/gotp
+	install -Dm644 COPYING $(DESTDIR)/share/gotp/COPYING
+
 serve-doc:
 	ciigo serve _doc
+
+.PHONY: uninstall-darwin
+uninstall-darwin: DESTDIR=/usr/local
+uninstall-darwin:
+	rm -f $(DESTDIR)/etc/bash_completion.d/gotp
+	rm -f $(DESTDIR)/share/gotp/COPYING
+	rm -f $(DESTDIR)/bin/gotp
