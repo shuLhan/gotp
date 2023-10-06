@@ -17,7 +17,6 @@ const (
 )
 
 const (
-	configDir   = `gotp`
 	configFile  = `gotp.conf`
 	defaultHash = HashSHA1
 

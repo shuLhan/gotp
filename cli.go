@@ -30,22 +30,16 @@ type Cli struct {
 }
 
 // NewCli create and initialize new CLI for gotp program.
-func NewCli() (cli *Cli, err error) {
+func NewCli(configDir string) (cli *Cli, err error) {
 	var (
 		logp = `NewCli`
 
-		userConfigDir string
-		cfgFile       string
+		cfgFile string
 	)
 
 	cli = &Cli{}
 
-	userConfigDir, err = os.UserConfigDir()
-	if err != nil {
-		return nil, fmt.Errorf(`%s: UserConfigDir: %w`, logp, err)
-	}
-
-	cfgFile = filepath.Join(userConfigDir, configDir, configFile)
+	cfgFile = filepath.Join(configDir, configFile)
 
 	cli.cfg, err = newConfig(cfgFile)
 	if err != nil {

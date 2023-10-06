@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -28,6 +29,9 @@ const (
 	cmdSetPrivateKey    = `set-private-key`
 	cmdVersion          = `version`
 )
+
+// defConfigDir default directory name for configuration.
+const defConfigDir = `gotp`
 
 func main() {
 	var (
@@ -99,7 +103,16 @@ func main() {
 		flag.Usage()
 	}
 
-	cli, err = gotp.NewCli()
+	var userConfigDir string
+
+	userConfigDir, err = os.UserConfigDir()
+	if err != nil {
+		log.Fatalf(`%s: UserConfigDir: %s`, cmdName, err)
+	}
+
+	var configDir = filepath.Join(userConfigDir, defConfigDir)
+
+	cli, err = gotp.NewCli(configDir)
 	if err != nil {
 		log.Printf(`%s: %s`, cmdName, err)
 		os.Exit(1)
