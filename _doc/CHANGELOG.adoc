@@ -6,6 +6,31 @@ Shulhan <ms@kilabit.info>
 :sectanchors:
 :sectlinks:
 
+[#v0_4_0]
+== gotp v0.4.0 (2023-11-11)
+
+[#v0_4_0__new_features]
+=== New features
+
+all: implement command "get"::
++
+The "get" command get and print the issuer by its LABEL.
+This will print the issuer secret, unencrypted.
+
+[#v0_4_0__enhancements]
+=== Enhancements
+
+all: unfold private key path before reading::
++
+By unfolding, user can set the path to private key using "~" that points
+to their home.
+This make the key can works across home directory, in case user have
+multiple homes (Linux and macOS have different home path and maybe
+user name, but both can use "~" as substitution for $HOME)
+
+Makefile: add task to install and uninstall gotp in macOS::
+
+
 [#v0_3_1]
 == gotp v0.3.1 (2023-05-25)
 

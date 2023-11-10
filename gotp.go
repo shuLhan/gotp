@@ -25,7 +25,7 @@ const (
 )
 
 // Version define the latest version of this module and gotp CLI.
-var Version = `0.3.1`
+var Version = `0.4.0`
 
 // normalizeLabel convert non alpha number, hyphen, underscore, or period
 // characters into `-`.
