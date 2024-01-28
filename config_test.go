@@ -4,8 +4,6 @@
 package gotp
 
 import (
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/shuLhan/share/lib/test"
@@ -23,19 +21,21 @@ func TestNewConfig(t *testing.T) {
 		desc:       `With file not exist`,
 		configFile: `testdata/config-not-exist`,
 		expConfig: &config{
-			file:       `testdata/config-not-exist`,
-			isNotExist: true,
+			dir:            `testdata`,
+			file:           `testdata/config-not-exist`,
+			privateKeyFile: `testdata/gotp.key`,
 		},
 	}, {
 		desc:       `With openssh rsa`,
 		configFile: `testdata/with_private_key.conf`,
 		expConfig: &config{
-			PrivateKey: `testdata/keys/rsa-openssl.pem`,
 			Issuers: map[string]string{
 				`email-domain`: `XYZ`,
 				`test`:         `ABCD`,
 			},
-			file: `testdata/with_private_key.conf`,
+			dir:            `testdata`,
+			privateKeyFile: `testdata/gotp.key`,
+			file:           `testdata/with_private_key.conf`,
 		},
 	}}
 
@@ -60,13 +60,12 @@ func TestNewConfig(t *testing.T) {
 	}
 }
 
-func TestMarshaler(t *testing.T) {
+func TestConfigMarshalText(t *testing.T) {
 	var (
 		cfg = config{}
 
-		tdata       *test.Data
-		userHomeDir string
-		err         error
+		tdata *test.Data
+		err   error
 	)
 
 	tdata, err = test.LoadData(`testdata/config_marshaler_test.txt`)
@@ -78,15 +77,6 @@ func TestMarshaler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-
-	userHomeDir, err = os.UserHomeDir()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var expPrivateKey = filepath.Join(userHomeDir, `myprivatekey.pem`)
-
-	test.Assert(t, `UnmarshalText: PrivateKey`, expPrivateKey, cfg.PrivateKey)
 
 	var gotText []byte
 

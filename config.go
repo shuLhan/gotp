@@ -13,7 +13,8 @@ import (
 	"strings"
 
 	"github.com/shuLhan/share/lib/ini"
-	libos "github.com/shuLhan/share/lib/os"
+	"golang.org/x/crypto/ssh"
+	"golang.org/x/term"
 )
 
 const (
@@ -23,20 +24,24 @@ const (
 type config struct {
 	privateKey *rsa.PrivateKey // Only RSA private key can do encryption.
 
-	Issuers    map[string]string `ini:"gotp:issuer"`
-	PrivateKey string            `ini:"gotp::private_key"`
+	Issuers map[string]string `ini:"gotp:issuer"`
 
-	file       string
-	isNotExist bool
+	dir            string
+	file           string
+	privateKeyFile string
 }
 
 func newConfig(file string) (cfg *config, err error) {
-	var (
-		logp = `newConfig`
+	var logp = `newConfig`
 
-		content    []byte
-		isNotExist bool
-	)
+	cfg = &config{
+		dir:  filepath.Dir(file),
+		file: file,
+	}
+
+	cfg.privateKeyFile = filepath.Join(cfg.dir, privateKeyFile)
+
+	var content []byte
 
 	content, err = os.ReadFile(file)
 	if err != nil {
@@ -44,23 +49,16 @@ func newConfig(file string) (cfg *config, err error) {
 			return nil, fmt.Errorf(`%s: Open %q: %w`, logp, file, err)
 		}
 
-		var dir = filepath.Dir(file)
-		err = os.MkdirAll(dir, 0700)
+		err = os.MkdirAll(cfg.dir, 0700)
 		if err != nil {
-			return nil, fmt.Errorf(`%s: MkdirAll %q: %w`, logp, dir, err)
+			return nil, fmt.Errorf(`%s: MkdirAll %q: %w`, logp, cfg.dir, err)
 		}
-		isNotExist = true
 	}
-
-	cfg = &config{}
 
 	err = cfg.UnmarshalText(content)
 	if err != nil {
 		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
-
-	cfg.isNotExist = isNotExist
-	cfg.file = file
 
 	return cfg, nil
 }
@@ -78,26 +76,12 @@ func (cfg *config) UnmarshalText(content []byte) (err error) {
 		}
 	}
 
-	if len(cfg.PrivateKey) != 0 {
-		cfg.PrivateKey, err = libos.PathUnfold(cfg.PrivateKey)
-		if err != nil {
-			return fmt.Errorf(`%s: %w`, logp, err)
-		}
-	}
-
 	return nil
 }
 
 // MarshalText convert the config object back to INI format.
 func (cfg *config) MarshalText() (text []byte, err error) {
 	var logp = `MarshalText`
-
-	if len(cfg.PrivateKey) != 0 {
-		cfg.PrivateKey, err = libos.PathFold(cfg.PrivateKey)
-		if err != nil {
-			return nil, fmt.Errorf(`%s: %w`, logp, err)
-		}
-	}
 
 	text, err = ini.Marshal(cfg)
 	if err != nil {
@@ -153,6 +137,62 @@ func (cfg *config) get(name string) (issuer *Issuer, err error) {
 	}
 
 	return issuer, nil
+}
+
+// loadPrivateKey parse the RSA private key with optional passphrase.
+// It will return nil if private key file does not exist.
+func (cfg *config) loadPrivateKey() (err error) {
+	var (
+		logp = `loadPrivateKey`
+
+		rawPem []byte
+	)
+
+	rawPem, err = os.ReadFile(cfg.privateKeyFile)
+	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil
+		}
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	var privateKey interface{}
+
+	privateKey, err = ssh.ParseRawPrivateKey(rawPem)
+	if err != nil {
+		var errPassMissing = &ssh.PassphraseMissingError{}
+
+		if !errors.As(err, &errPassMissing) {
+			return fmt.Errorf(`%s %q: %w`, logp, cfg.privateKeyFile, err)
+		}
+
+		fmt.Printf(`Enter passphrase for %s: `, cfg.privateKeyFile)
+
+		var (
+			stdin = int(os.Stdin.Fd())
+			pass  []byte
+		)
+
+		pass, err = term.ReadPassword(stdin)
+		fmt.Println()
+		if err != nil {
+			return fmt.Errorf(`%s %q: %w`, logp, cfg.privateKeyFile, err)
+		}
+
+		privateKey, err = ssh.ParseRawPrivateKeyWithPassphrase(rawPem, pass)
+		if err != nil {
+			return fmt.Errorf(`%s %q: %w`, logp, cfg.privateKeyFile, err)
+		}
+	}
+
+	var ok bool
+
+	cfg.privateKey, ok = privateKey.(*rsa.PrivateKey)
+	if !ok {
+		return fmt.Errorf(`%s: invalid or unsupported private key`, logp)
+	}
+
+	return nil
 }
 
 // save the config to file.

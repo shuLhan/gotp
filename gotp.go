@@ -11,16 +11,19 @@ import (
 
 // List of available algorithm for Provider.
 const (
-	HashSHA1   = `SHA1` // Default algorithm.
-	HashSHA256 = `SHA256`
-	HashSHA512 = `SHA512`
+	HashSHA1    = `SHA1` // Default algorithm.
+	HashSHA256  = `SHA256`
+	HashSHA512  = `SHA512`
+	defaultHash = HashSHA1
 )
 
 const (
-	configFile  = `gotp.conf`
-	defaultHash = HashSHA1
+	configFile     = `gotp.conf`
+	privateKeyFile = `gotp.key`
+)
 
-	// List of known providers
+// List of known providers.
+const (
 	providerNameAegis = `aegis`
 )
 

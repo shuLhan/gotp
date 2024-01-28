@@ -5,13 +5,7 @@ Test UnmarshalText and MarshalText on config.
 test1 = SHA1:a:6:30:
 test2 = SHA1:b:6:30:
 
-[gotp]
-private_key = ~/myprivatekey.pem
-
 <<< output.ini
 [gotp "issuer"]
 test1 = SHA1:a:6:30:
 test2 = SHA1:b:6:30:
-
-[gotp]
-private_key = ~/myprivatekey.pem

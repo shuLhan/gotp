@@ -13,53 +13,6 @@ import (
 	"github.com/shuLhan/share/lib/test"
 )
 
-func TestCli_inputPrivateKey(t *testing.T) {
-	type testCase struct {
-		desc       string
-		privateKey string
-		exp        string
-	}
-
-	var (
-		cli = &Cli{
-			cfg: &config{
-				file:       `testdata/save.conf`,
-				isNotExist: true,
-			},
-		}
-
-		c                 testCase
-		r                 *os.File
-		w                 *os.File
-		gotPrivateKeyFile string
-		err               error
-	)
-
-	var cases = []testCase{{
-		desc: `Without private key`,
-		exp:  "[gotp]\nprivate_key =\n",
-	}, {
-		desc:       `With private key`,
-		privateKey: `testdata/rsa`,
-	}}
-
-	for _, c = range cases {
-		r, w, err = os.Pipe()
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		fmt.Fprintf(w, "%s\n", c.privateKey)
-
-		gotPrivateKeyFile, err = cli.inputPrivateKey(r)
-		if err != nil {
-			t.Fatal(err)
-		}
-
-		test.Assert(t, cli.cfg.file, c.privateKey, gotPrivateKeyFile)
-	}
-}
-
 func TestCli_Add(t *testing.T) {
 	type testCase struct {
 		issuer    *Issuer
@@ -85,10 +38,8 @@ func TestCli_Add(t *testing.T) {
 	}
 
 	var cases = []testCase{{
-		desc: `With nil issuer`,
-		expConfig: `[gotp]
-private_key =
-`,
+		desc:      `With nil issuer`,
+		expConfig: ``,
 	}, {
 		desc: `With invalid label`,
 		issuer: &Issuer{
@@ -111,9 +62,6 @@ private_key =
 		},
 		expConfig: `[gotp "issuer"]
 test = SHA1:x:6:30:
-
-[gotp]
-private_key =
 `,
 	}}
 
@@ -153,7 +101,9 @@ func TestCli_SetPrivateKey(t *testing.T) {
 
 	var (
 		cli = &Cli{}
-		cfg = &config{}
+		cfg = &config{
+			dir: t.TempDir(),
+		}
 
 		rawConfig []byte
 	)
@@ -166,16 +116,16 @@ func TestCli_SetPrivateKey(t *testing.T) {
 	}
 	cli.cfg = cfg
 
-	// Set the private key.
+	// Set the private key generated from openssl command.
 
 	err = cli.SetPrivateKey(tdata.Flag[`private_key_openssl`])
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	// Change the private key.
+	// Change the private key generated from ssh-keygen command.
 
-	err = cli.SetPrivateKey(tdata.Flag[`private_key_openssl`])
+	err = cli.SetPrivateKey(tdata.Flag[`private_key_openssh`])
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -193,7 +143,7 @@ func TestCli_SetPrivateKey(t *testing.T) {
 	}
 	cli.cfg = cfg
 
-	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	err = cli.cfg.loadPrivateKey()
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -11,9 +11,6 @@ test3 = SHA1:c:6:30:
 test4 = SHA1:d:6:30:
 test5 = SHA1:e:6:30:
 
-[gotp]
-private_key =
-
 <<< issuers
 test1 = SHA1:a:6:30:
 test2 = SHA1:b:6:30:

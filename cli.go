@@ -4,19 +4,16 @@
 package gotp
 
 import (
-	"crypto/rsa"
 	_ "embed"
 	"encoding/base32"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
 
+	libos "github.com/shuLhan/share/lib/os"
 	"github.com/shuLhan/share/lib/totp"
-	"golang.org/x/crypto/ssh"
-	"golang.org/x/term"
 )
 
 // Readme embed the README.md, rendered in "gotp help".
@@ -46,84 +43,7 @@ func NewCli(configDir string) (cli *Cli, err error) {
 		return nil, fmt.Errorf(`%s: UserConfigDir: %w`, logp, err)
 	}
 
-	if cli.cfg.isNotExist {
-		cli.cfg.PrivateKey, err = cli.inputPrivateKey(os.Stdin)
-		if err != nil {
-			return nil, fmt.Errorf(`%s: %w`, logp, err)
-		}
-		if len(cli.cfg.PrivateKey) > 0 {
-			cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
-			if err != nil {
-				return nil, fmt.Errorf(`%s: %w`, logp, err)
-			}
-		}
-		err = cli.cfg.save()
-		if err != nil {
-			return nil, fmt.Errorf(`%s: %w`, logp, err)
-		}
-	}
-
 	return cli, nil
-}
-
-func (cli *Cli) inputPrivateKey(stdin *os.File) (privateKeyFile string, err error) {
-	fmt.Println(`Seems like this is your first time using this gotp.`)
-	fmt.Println(`If you would like to encrypt the secret, please`)
-	fmt.Printf(`enter the path to private key or enter to skip it: `)
-	fmt.Fscanln(stdin, &privateKeyFile)
-
-	return privateKeyFile, nil
-}
-
-// loadPrivateKey parse the RSA private key with optional passphrase.
-func loadPrivateKey(privateKeyFile string, pass []byte) (rsaPrivateKey *rsa.PrivateKey, err error) {
-	if len(privateKeyFile) == 0 {
-		return nil, nil
-	}
-
-	var (
-		logp           = `loadPrivateKey`
-		errPassMissing = &ssh.PassphraseMissingError{}
-
-		privateKey interface{}
-		stdin      int
-		rawPem     []byte
-		ok         bool
-	)
-
-	rawPem, err = os.ReadFile(privateKeyFile)
-	if err != nil {
-		return nil, fmt.Errorf(`%s: %w`, logp, err)
-	}
-
-	if len(pass) == 0 {
-		privateKey, err = ssh.ParseRawPrivateKey(rawPem)
-	} else {
-		privateKey, err = ssh.ParseRawPrivateKeyWithPassphrase(rawPem, pass)
-	}
-	if err != nil {
-		if !errors.As(err, &errPassMissing) {
-			return nil, fmt.Errorf(`%s %q: %w`, logp, privateKeyFile, err)
-		}
-
-		fmt.Printf(`Enter passphrase for %s: `, privateKeyFile)
-
-		stdin = int(os.Stdin.Fd())
-
-		pass, err = term.ReadPassword(stdin)
-		fmt.Println()
-		if err != nil {
-			return nil, fmt.Errorf(`%s %q: %w`, logp, privateKeyFile, err)
-		}
-
-		return loadPrivateKey(privateKeyFile, pass)
-	}
-	rsaPrivateKey, ok = privateKey.(*rsa.PrivateKey)
-	if !ok {
-		return nil, fmt.Errorf(`%s: invalid or unsupported private key`, logp)
-	}
-
-	return rsaPrivateKey, nil
 }
 
 // Add new issuer to the config.
@@ -134,7 +54,7 @@ func (cli *Cli) Add(issuer *Issuer) (err error) {
 
 	var logp = `Add`
 
-	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	err = cli.cfg.loadPrivateKey()
 	if err != nil {
 		return fmt.Errorf(`%s: %w`, logp, err)
 	}
@@ -164,7 +84,7 @@ func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 		proto      totp.Protocol
 	)
 
-	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	err = cli.cfg.loadPrivateKey()
 	if err != nil {
 		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
@@ -203,7 +123,7 @@ func (cli *Cli) Get(label string) (issuer *Issuer, err error) {
 	var logp = `Get`
 
 	if cli.cfg.privateKey == nil {
-		cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+		err = cli.cfg.loadPrivateKey()
 		if err != nil {
 			return nil, fmt.Errorf(`%s: %w`, logp, err)
 		}
@@ -226,7 +146,7 @@ func (cli *Cli) Import(providerName, file string) (n int, err error) {
 		issuer  *Issuer
 	)
 
-	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	err = cli.cfg.loadPrivateKey()
 	if err != nil {
 		return 0, fmt.Errorf(`%s: %w`, logp, err)
 	}
@@ -301,18 +221,22 @@ func (cli *Cli) Remove(label string) (err error) {
 	return nil
 }
 
-// RemovePrivateKey Decrypt the issuer's value (hash:secret...) using previous
-// private key and store it back to file as plain text.
+// RemovePrivateKey decrypt the issuer's value (hash:secret...) using
+// current private key and store it back to file as plain text.
+// The current private key file will be removed from gotp directory.
+//
+// If no private key file, this method does nothing.
 func (cli *Cli) RemovePrivateKey() (err error) {
-	if cli.cfg.privateKey == nil {
-		return nil
-	}
-
 	var logp = `RemovePrivateKey`
 
-	cli.cfg.privateKey, err = loadPrivateKey(cli.cfg.PrivateKey, nil)
+	err = cli.cfg.loadPrivateKey()
 	if err != nil {
 		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	if cli.cfg.privateKey == nil {
+		// The private key file is not exist.
+		return nil
 	}
 
 	var (
@@ -341,12 +265,17 @@ func (cli *Cli) RemovePrivateKey() (err error) {
 		}
 	}
 
-	cli.cfg.PrivateKey = ``
-
 	err = cli.cfg.save()
 	if err != nil {
 		return fmt.Errorf(`%s: %w`, logp, err)
 	}
+
+	err = os.Remove(cli.cfg.privateKeyFile)
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	cli.cfg.privateKeyFile = ``
 
 	return nil
 }
@@ -386,16 +315,20 @@ func (cli *Cli) Rename(label, newLabel string) (err error) {
 	return nil
 }
 
-// SetPrivateKey encrypt all the OTP secret using the private key.
+// SetPrivateKey encrypt all the OTP secret using the new private key.
 // The only accepted private key is RSA.
-func (cli *Cli) SetPrivateKey(privateKeyFile string) (err error) {
+// If the pkeyFile is valid, it will be copied to
+// "$XDG_CONFIG_DIR/gotp/gotp.key".
+func (cli *Cli) SetPrivateKey(pkeyFile string) (err error) {
 	var (
 		logp          = `SetPrivateKey`
 		oldIssuers    = cli.cfg.Issuers
 		oldPrivateKey = cli.cfg.privateKey
 	)
 
-	cli.cfg.privateKey, err = loadPrivateKey(privateKeyFile, nil)
+	cli.cfg.privateKeyFile = pkeyFile
+
+	err = cli.cfg.loadPrivateKey()
 	if err != nil {
 		return fmt.Errorf(`%s: %w`, logp, err)
 	}
@@ -422,11 +355,21 @@ func (cli *Cli) SetPrivateKey(privateKeyFile string) (err error) {
 		}
 	}
 
-	cli.cfg.PrivateKey = privateKeyFile
-
 	err = cli.cfg.save()
 	if err != nil {
 		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	var expPrivateKeyPath = filepath.Join(cli.cfg.dir, privateKeyFile)
+
+	if expPrivateKeyPath != pkeyFile {
+		// Copy the private key file if the path is not
+		// "$configDir/gotp.key".
+		err = libos.Copy(expPrivateKeyPath, pkeyFile)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
+		cli.cfg.privateKeyFile = expPrivateKeyPath
 	}
 
 	return nil
