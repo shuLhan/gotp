@@ -205,6 +205,11 @@ func (cli *Cli) Remove(label string) (err error) {
 		return fmt.Errorf(`%s: %q not exist`, logp, label)
 	}
 
+	err = cli.cfg.loadPrivateKey()
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
 	delete(cli.cfg.Issuers, label)
 
 	err = cli.cfg.save()
@@ -284,6 +289,11 @@ func (cli *Cli) Rename(label, newLabel string) (err error) {
 		rawValue string
 		ok       bool
 	)
+
+	err = cli.cfg.loadPrivateKey()
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
 
 	label = strings.TrimSpace(label)
 	label = strings.ToLower(label)

@@ -415,6 +415,9 @@ func testGetWithPassphrase(t *testing.T, tdata *test.Data, cli *Cli) {
 }
 
 func testRemoveWithPassphrase(t *testing.T, tdata *test.Data, cli *Cli) {
+	var pass = string(tdata.Input[`gotp.pass`]) + "\r\n"
+	mockTermrw.BufRead.WriteString(pass)
+
 	var err = cli.Remove(`test-sha512`)
 	if err != nil {
 		t.Fatal(err)
@@ -427,6 +430,9 @@ func testRemoveWithPassphrase(t *testing.T, tdata *test.Data, cli *Cli) {
 
 // The Rename method does not require private key.
 func testRenameWithPassphrase(t *testing.T, tdata *test.Data, cli *Cli) {
+	var pass = string(tdata.Input[`gotp.pass`]) + "\r\n"
+	mockTermrw.BufRead.WriteString(pass)
+
 	var err = cli.Rename(`test-sha1`, `renamed-sha1`)
 	if err != nil {
 		t.Fatal(err)
