@@ -4,6 +4,7 @@
 package gotp
 
 import (
+	"crypto"
 	"crypto/rsa"
 	"errors"
 	"fmt"
@@ -12,9 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	libcrypto "github.com/shuLhan/share/lib/crypto"
 	"github.com/shuLhan/share/lib/ini"
-	"golang.org/x/crypto/ssh"
-	"golang.org/x/term"
 )
 
 const (
@@ -142,13 +142,9 @@ func (cfg *config) get(name string) (issuer *Issuer, err error) {
 // loadPrivateKey parse the RSA private key with optional passphrase.
 // It will return nil if private key file does not exist.
 func (cfg *config) loadPrivateKey() (err error) {
-	var (
-		logp = `loadPrivateKey`
+	var logp = `loadPrivateKey`
 
-		rawPem []byte
-	)
-
-	rawPem, err = os.ReadFile(cfg.privateKeyFile)
+	_, err = os.Stat(cfg.privateKeyFile)
 	if err != nil {
 		if errors.Is(err, fs.ErrNotExist) {
 			return nil
@@ -156,33 +152,11 @@ func (cfg *config) loadPrivateKey() (err error) {
 		return fmt.Errorf(`%s: %w`, logp, err)
 	}
 
-	var privateKey interface{}
+	var privateKey crypto.PrivateKey
 
-	privateKey, err = ssh.ParseRawPrivateKey(rawPem)
+	privateKey, err = libcrypto.LoadPrivateKeyInteractive(termrw, cfg.privateKeyFile)
 	if err != nil {
-		var errPassMissing = &ssh.PassphraseMissingError{}
-
-		if !errors.As(err, &errPassMissing) {
-			return fmt.Errorf(`%s %q: %w`, logp, cfg.privateKeyFile, err)
-		}
-
-		fmt.Printf(`Enter passphrase for %s: `, cfg.privateKeyFile)
-
-		var (
-			stdin = int(os.Stdin.Fd())
-			pass  []byte
-		)
-
-		pass, err = term.ReadPassword(stdin)
-		fmt.Println()
-		if err != nil {
-			return fmt.Errorf(`%s %q: %w`, logp, cfg.privateKeyFile, err)
-		}
-
-		privateKey, err = ssh.ParseRawPrivateKeyWithPassphrase(rawPem, pass)
-		if err != nil {
-			return fmt.Errorf(`%s %q: %w`, logp, cfg.privateKeyFile, err)
-		}
+		return fmt.Errorf(`%s %q: %w`, logp, cfg.privateKeyFile, err)
 	}
 
 	var ok bool

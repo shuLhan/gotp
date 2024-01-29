@@ -110,7 +110,7 @@ func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 
 	proto = totp.New(cryptoHash, issuer.Digits, issuer.TimeStep)
 
-	listOtp, err = proto.GenerateN(secret, n)
+	listOtp, err = proto.GenerateNWithTime(timeNow(), secret, n)
 	if err != nil {
 		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
@@ -193,13 +193,12 @@ func (cli *Cli) List() (labels []string) {
 
 // Remove a TOTP configuration by its label.
 func (cli *Cli) Remove(label string) (err error) {
-	var (
-		logp = `Remove`
+	var logp = `Remove`
 
-		ok bool
-	)
-
+	label = strings.TrimSpace(label)
 	label = strings.ToLower(label)
+
+	var ok bool
 
 	_, ok = cli.cfg.Issuers[label]
 	if !ok {
@@ -286,12 +285,14 @@ func (cli *Cli) Rename(label, newLabel string) (err error) {
 		ok       bool
 	)
 
+	label = strings.TrimSpace(label)
 	label = strings.ToLower(label)
 	rawValue, ok = cli.cfg.Issuers[label]
 	if !ok {
 		return fmt.Errorf(`%s: %q not exist`, logp, label)
 	}
 
+	newLabel = strings.TrimSpace(newLabel)
 	newLabel = strings.ToLower(newLabel)
 	_, ok = cli.cfg.Issuers[newLabel]
 	if ok {

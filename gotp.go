@@ -5,7 +5,9 @@
 package gotp
 
 import (
+	"io"
 	"strings"
+	"time"
 	"unicode"
 )
 
@@ -29,6 +31,15 @@ const (
 
 // Version define the latest version of this module and gotp CLI.
 var Version = `0.4.0`
+
+// termrw define terminal for reading passphrase.
+// It is defined to mock parameter termrw in
+// [libcrypto.LoadPrivateKeyInteractive].
+var termrw io.ReadWriter
+
+// timeNow return the current time in UTC.
+// It is defined to mock current time for testing Generate.
+var timeNow = func() time.Time { return time.Now().UTC() }
 
 // normalizeLabel convert non alpha number, hyphen, underscore, or period
 // characters into `-`.

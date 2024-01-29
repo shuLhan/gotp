@@ -109,7 +109,6 @@ func (issuer *Issuer) pack(privateKey *rsa.PrivateKey) (value string, err error)
 	var (
 		logp      = `pack`
 		plainText = issuer.String()
-		rng       = rand.Reader
 	)
 
 	issuer.raw = []byte(plainText)
@@ -117,7 +116,7 @@ func (issuer *Issuer) pack(privateKey *rsa.PrivateKey) (value string, err error)
 		return string(issuer.raw), nil
 	}
 
-	issuer.raw, err = libcrypto.EncryptOaep(sha256.New(), rng, &privateKey.PublicKey, issuer.raw, nil)
+	issuer.raw, err = libcrypto.EncryptOaep(sha256.New(), rand.Reader, &privateKey.PublicKey, issuer.raw, nil)
 	if err != nil {
 		return ``, fmt.Errorf(`%s: %w`, logp, err)
 	}
