@@ -146,11 +146,6 @@ func (cli *Cli) Import(providerName, file string) (n int, err error) {
 		issuer  *Issuer
 	)
 
-	err = cli.cfg.loadPrivateKey()
-	if err != nil {
-		return 0, fmt.Errorf(`%s: %w`, logp, err)
-	}
-
 	providerName = strings.ToLower(providerName)
 	switch providerName {
 	case providerNameAegis:
@@ -163,13 +158,13 @@ func (cli *Cli) Import(providerName, file string) (n int, err error) {
 		return 0, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
-	for _, issuer = range issuers {
-		err = issuer.validate()
-		if err != nil {
-			return 0, fmt.Errorf(`%s: %w`, logp, err)
-		}
+	err = cli.cfg.loadPrivateKey()
+	if err != nil {
+		return 0, fmt.Errorf(`%s: %w`, logp, err)
+	}
 
-		err = cli.cfg.add(issuer)
+	for _, issuer = range issuers {
+		err = cli.add(issuer)
 		if err != nil {
 			return 0, fmt.Errorf(`%s: %w`, logp, err)
 		}
