@@ -32,14 +32,21 @@ type Issuer struct {
 // NewIssuer create and initialize new issuer from raw value.
 // If the rsaPrivateKey is not nil, that means the rawConfig is encrypted.
 func NewIssuer(label, rawConfig string, rsaPrivateKey *rsa.PrivateKey) (issuer *Issuer, err error) {
-	var (
-		logp = `NewIssuer`
+	var logp = `NewIssuer`
 
-		vals   []string
-		vbytes []byte
-	)
+	label = strings.TrimSpace(label)
+	if len(label) == 0 {
+		return nil, fmt.Errorf(`%s: empty label`, logp)
+	}
+
+	rawConfig = strings.TrimSpace(rawConfig)
+	if len(rawConfig) == 0 {
+		return nil, fmt.Errorf(`%s: empty configuration`, logp)
+	}
 
 	if rsaPrivateKey != nil {
+		var vbytes []byte
+
 		vbytes, err = base64.StdEncoding.DecodeString(rawConfig)
 		if err != nil {
 			return nil, fmt.Errorf(`%s: %w`, logp, err)
@@ -52,6 +59,8 @@ func NewIssuer(label, rawConfig string, rsaPrivateKey *rsa.PrivateKey) (issuer *
 
 		rawConfig = string(vbytes)
 	}
+
+	var vals []string
 
 	vals = strings.Split(rawConfig, valueSeparator)
 	if len(vals) < 2 {
