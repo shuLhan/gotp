@@ -21,14 +21,18 @@ build:
 
 install: build
 	install -D _sys/usr/bin/gotp $(DESTDIR)/usr/bin/gotp
-	install -Dm644 _sys/etc/bash_completion.d/gotp $(DESTDIR)/etc/bash_completion.d/gotp
+	install -Dm644 \
+	        _sys/usr/share/bash-completion/completions/gotp \
+	  $(DESTDIR)/usr/share/bash-completion/completions/gotp
 	install -Dm644 COPYING $(DESTDIR)/usr/share/licenses/gotp/COPYING
 
 .PHONY: install-darwin
 install-darwin: DESTDIR=/usr/local
 install-darwin: build
 	install -D _sys/usr/bin/gotp $(DESTDIR)/bin/gotp
-	install -Dm644 _sys/etc/bash_completion.d/gotp $(DESTDIR)/etc/bash_completion.d/gotp
+	install -Dm644 \
+	        _sys/usr/share/bash-completion/completions/gotp \
+	  $(DESTDIR)/etc/bash_completion.d/gotp
 	install -Dm644 COPYING $(DESTDIR)/share/gotp/COPYING
 
 serve-doc:
