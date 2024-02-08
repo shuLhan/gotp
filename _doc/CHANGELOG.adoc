@@ -1,10 +1,42 @@
 // SPDX-FileCopyrightText: 2022 M. Shulhan <ms@kilabit.info>
 // SPDX-License-Identifier: GPL-3.0-or-later
 = gotp changelog
-Shulhan <ms@kilabit.info>
 :toc:
 :sectanchors:
 :sectlinks:
+
+[#v0_5_0]
+== gotp v0.5.0 (2024-02-08)
+
+[#v0_5_0__breaking_changes]
+=== Breaking changes
+
+all: make the path to private key static::
++
+Instead of prompting user, make the private key static, located at
+"$XDG_CONFIG_DIR/gotp/gotp.key".
+If the key exist, the issuer will be encrypted.
+
+
+[#v0_5_0__enhancements]
+=== Enhancements
+
+all: ask for passphrase when removing or renaming label::
++
+--
+Even though "rename" command does not read the encrypted secret, as long as
+the private key is in use, it should ask for passphrase.
+
+The remove operation allow only the one that know the private key can
+modify the issuer.
+--
+
+_sys: fix the bash completion installation directory::
++
+In POSIX system, the correct installation for bash completion
+script should be /usr/share/bash-completion not under /etc
+directory.
+
 
 [#v0_4_0]
 == gotp v0.4.0 (2023-11-11)
