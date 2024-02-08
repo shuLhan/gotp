@@ -3,7 +3,7 @@
 ## SPDX-License-Identifier: GPL-3.0-or-later
 
 pkgname=gotp-git
-pkgver=0.2.2.r3.gaab7eb0
+pkgver=0.4.0.r7.gf5788bd
 pkgrel=1
 
 pkgdesc="A command line interface to manage and generate Time-based One Time Password (TOTP)"
@@ -19,7 +19,7 @@ makedepends=(
 provides=('awwan')
 
 source=("$pkgname::git+https://git.sr.ht/~shulhan/gotp")
-#source=("$pkgname::git+file:///home/ms/go/src/git.sr.ht/~shulhan/gotp")
+#source=("$pkgname::git+file:///home/ms/go/src/git.sr.ht/~shulhan/gotp#branch=dev")
 
 md5sums=(
 	'SKIP'
