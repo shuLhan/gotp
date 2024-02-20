@@ -94,7 +94,7 @@ func (cli *Cli) Generate(label string, n int) (listOtp []string, err error) {
 		return nil, fmt.Errorf(`%s: %w`, logp, err)
 	}
 
-	secret, err = b32Enc.DecodeString(issuer.Secret)
+	secret, err = b32Enc.DecodeString(strings.ToUpper(issuer.Secret))
 	if err != nil {
 		return nil, fmt.Errorf(`%s: secret is not a valid base32 encoding: %w`, logp, err)
 	}
