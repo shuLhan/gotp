@@ -3,14 +3,14 @@
 
 module git.sr.ht/~shulhan/gotp
 
-go 1.20
+go 1.21
 
-require github.com/shuLhan/share v0.53.0
+require git.sr.ht/~shulhan/pakakeh.go v0.53.2-0.20240321104707-cee16b8ead85
 
 require (
-	golang.org/x/crypto v0.18.0 // indirect
-	golang.org/x/sys v0.16.0 // indirect
-	golang.org/x/term v0.16.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/term v0.18.0 // indirect
 )
 
-//replace github.com/shuLhan/share => ../share
+//replace git.sr.ht/~shulhan/pakakeh.go => ../pakakeh.go

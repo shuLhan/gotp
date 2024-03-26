@@ -12,8 +12,8 @@ import (
 	"sort"
 	"strings"
 
-	libos "github.com/shuLhan/share/lib/os"
-	"github.com/shuLhan/share/lib/totp"
+	libos "git.sr.ht/~shulhan/pakakeh.go/lib/os"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/totp"
 )
 
 // Readme embed the README.md, rendered in "gotp help".

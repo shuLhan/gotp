@@ -13,8 +13,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	libcrypto "github.com/shuLhan/share/lib/crypto"
-	"github.com/shuLhan/share/lib/ini"
+	libcrypto "git.sr.ht/~shulhan/pakakeh.go/lib/crypto"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/ini"
 )
 
 const (

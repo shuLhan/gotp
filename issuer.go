@@ -12,9 +12,9 @@ import (
 	"strconv"
 	"strings"
 
-	libcrypto "github.com/shuLhan/share/lib/crypto"
-	"github.com/shuLhan/share/lib/ini"
-	"github.com/shuLhan/share/lib/totp"
+	libcrypto "git.sr.ht/~shulhan/pakakeh.go/lib/crypto"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/ini"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/totp"
 )
 
 // Issuer contains the configuration for single TOTP issuer, including

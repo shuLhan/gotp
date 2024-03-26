@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/shuLhan/share/lib/test/mock"
+	"git.sr.ht/~shulhan/pakakeh.go/lib/test/mock"
 )
 
 // Mock the termrw for reading passphrase.
