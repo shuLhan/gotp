@@ -11,9 +11,14 @@ test:
 
 .PHONY: lint
 lint:
-	-revive ./...
 	-fieldalignment ./...
 	-shadow ./...
+	-golangci-lint run \
+		--presets bugs,metalinter,performance,unused \
+		--disable exhaustive \
+		--disable musttag \
+		--disable bodyclose \
+		./...
 
 build:
 	mkdir -p _sys/usr/bin/

@@ -60,9 +60,7 @@ func NewIssuer(label, rawConfig string, rsaPrivateKey *rsa.PrivateKey) (issuer *
 		rawConfig = string(vbytes)
 	}
 
-	var vals []string
-
-	vals = strings.Split(rawConfig, valueSeparator)
+	var vals = strings.Split(rawConfig, valueSeparator)
 	if len(vals) < 2 {
 		return nil, fmt.Errorf(`%s: invalid value %q`, logp, rawConfig)
 	}
