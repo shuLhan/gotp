@@ -20,6 +20,7 @@ import (
 const (
 	cmdName             = `gotp`
 	cmdAdd              = `add`
+	cmdExport           = `export`
 	cmdGenerate         = `gen`
 	cmdGet              = `get`
 	cmdImport           = `import`
@@ -64,6 +65,11 @@ func main() {
 			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
 			os.Exit(1)
 		}
+	case cmdExport:
+		if len(args) < 2 {
+			log.Fatalf(`%s %s: missing parameter: format`, cmdName, cmd)
+		}
+
 	case cmdGenerate:
 		if len(args) < 2 {
 			log.Printf(`%s %s: missing parameters`, cmdName, cmd)
@@ -106,8 +112,7 @@ func main() {
 		return
 
 	default:
-		log.Printf(`%s: unknown command %q`, cmdName, cmd)
-		flag.Usage()
+		log.Fatalf(`%s: unknown command %q`, cmdName, cmd)
 	}
 
 	var userConfigDir string
@@ -128,6 +133,8 @@ func main() {
 	switch cmd {
 	case cmdAdd:
 		doAdd(cli, args)
+	case cmdExport:
+		doExport(cli, flag.Arg(1), flag.Arg(2))
 	case cmdGenerate:
 		doGenerate(cli, args)
 	case cmdGet:
@@ -167,6 +174,39 @@ func doAdd(cli *gotp.Cli, args []string) {
 		os.Exit(1)
 	}
 	fmt.Println(`OK`)
+}
+
+func doExport(cli *gotp.Cli, providerName string, exportFile string) {
+	var (
+		out *os.File
+		err error
+	)
+
+	if len(exportFile) == 0 {
+		out = os.Stdout
+	} else {
+		out, err = os.OpenFile(exportFile, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0600)
+		if err != nil {
+			log.Fatalf(`export: %s`, err)
+		}
+	}
+
+	err = cli.Export(out, providerName)
+	if err != nil {
+		goto out
+	}
+
+	return
+out:
+	log.Printf(`export: %s`, err)
+
+	if len(exportFile) == 0 {
+		err = out.Close()
+		if err != nil {
+			log.Printf(`export: %s`, err)
+		}
+	}
+	os.Exit(1)
 }
 
 func doGenerate(cli *gotp.Cli, args []string) {

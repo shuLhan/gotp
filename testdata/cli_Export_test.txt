@@ -1,0 +1,3 @@
+
+<<< uri
+otpauth://totp/test%20l@bel?algorithm=SHA1&issuer=IssuerName&secret=s3cr3t

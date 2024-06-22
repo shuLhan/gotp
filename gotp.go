@@ -5,7 +5,9 @@
 package gotp
 
 import (
+	"fmt"
 	"io"
+	"net/url"
 	"strings"
 	"time"
 	"unicode"
@@ -27,6 +29,11 @@ const (
 // List of known providers.
 const (
 	providerNameAegis = `aegis`
+)
+
+// List of known format for export.
+const (
+	formatNameURI = `uri`
 )
 
 // Version define the latest version of this module and gotp CLI.
@@ -59,4 +66,39 @@ func normalizeLabel(in string) (out string) {
 		}
 	}
 	return strings.ToLower(buf.String())
+}
+
+// exportAsURI export the list of issuers using [URI] format.
+//
+// [URI]: https://github.com/google/google-authenticator/wiki/Key-Uri-Format
+func exportAsURI(w io.Writer, issuers []*Issuer) (err error) {
+	var (
+		logp   = `exportAsURI`
+		issuer *Issuer
+	)
+
+	for _, issuer = range issuers {
+		var q = url.Values{}
+
+		q.Set(`algorithm`, issuer.Hash)
+		q.Set(`secret`, issuer.Secret)
+		if len(issuer.Name) == 0 {
+			q.Set(`issuer`, issuer.Label)
+		} else {
+			q.Set(`issuer`, issuer.Name)
+		}
+
+		var otpauth = url.URL{
+			Scheme:   `otpauth`,
+			Host:     `totp`,
+			Path:     issuer.Label,
+			RawQuery: q.Encode(),
+		}
+
+		_, err = w.Write([]byte(otpauth.String() + "\n"))
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
+	}
+	return nil
 }

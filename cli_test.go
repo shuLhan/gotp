@@ -10,6 +10,7 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"git.sr.ht/~shulhan/pakakeh.go/lib/test"
@@ -88,6 +89,37 @@ test = SHA1:x:6:30:
 
 		test.Assert(t, cli.cfg.file, c.expConfig, string(got))
 	}
+}
+
+func TestCli_Export(t *testing.T) {
+	var (
+		tdata *test.Data
+		err   error
+	)
+
+	tdata, err = test.LoadData(`testdata/cli_Export_test.txt`)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var cli = &Cli{
+		cfg: &config{
+			Issuers: map[string]string{
+				`test l@bel`: `SHA1:s3cr3t:6:30:IssuerName`,
+			},
+		},
+	}
+
+	var sb = strings.Builder{}
+
+	err = cli.Export(&sb, formatNameURI)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var exp = string(tdata.Output[`uri`])
+
+	test.Assert(t, `Export: uri`, exp, sb.String())
 }
 
 func TestCli_SetPrivateKey(t *testing.T) {
@@ -265,6 +297,10 @@ func TestCli_withPassphrase(t *testing.T) {
 		testAddWithPassphrase(t, tdata, cli)
 	})
 
+	t.Run(`Export`, func(t *testing.T) {
+		testExportWithPassphrase(t, tdata, cli)
+	})
+
 	t.Run(`Generate`, func(t *testing.T) {
 		testGenerateWithPassphrase(t, tdata, cli)
 	})
@@ -328,6 +364,24 @@ func testAddWithPassphrase(t *testing.T, tdata *test.Data, cli *Cli) {
 	assertGotpConf(t, cli, string(tdata.Output[`gotp.conf:encrypted`]))
 
 	mockTermrw.BufRead.Reset()
+}
+
+func testExportWithPassphrase(t *testing.T, tdata *test.Data, cli *Cli) {
+	var pass = string(tdata.Input[`gotp.pass`]) + "\r\n"
+	mockTermrw.BufRead.WriteString(pass)
+
+	t.Cleanup(mockTermrw.BufRead.Reset)
+
+	var got = strings.Builder{}
+
+	var err = cli.Export(&got, formatNameURI)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var exp = string(tdata.Output[`gotp.conf:export`])
+
+	test.Assert(t, `testExportWithPassphrase`, exp, got.String())
 }
 
 func testGenerateWithPassphrase(t *testing.T, tdata *test.Data, cli *Cli) {

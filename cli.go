@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"encoding/base32"
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"sort"
@@ -67,6 +68,48 @@ func (cli *Cli) Add(issuer *Issuer) (err error) {
 	err = cli.cfg.save()
 	if err != nil {
 		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	return nil
+}
+
+// Export all the issuers and its secret to the file or standard output.
+// List of supported format: "uri".
+func (cli *Cli) Export(w io.Writer, formatName string) (err error) {
+	var logp = `Export`
+
+	formatName = strings.ToLower(formatName)
+	switch formatName {
+	case formatNameURI:
+	default:
+		return fmt.Errorf(`%s: unknown format name %q`, logp, formatName)
+	}
+
+	err = cli.cfg.loadPrivateKey()
+	if err != nil {
+		return fmt.Errorf(`%s: %w`, logp, err)
+	}
+
+	var (
+		labels  = cli.List()
+		issuers = make([]*Issuer, 0, len(labels))
+
+		label  string
+		issuer *Issuer
+	)
+	for _, label = range labels {
+		issuer, err = cli.cfg.get(label)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
+		issuers = append(issuers, issuer)
+	}
+
+	if formatName == formatNameURI {
+		err = exportAsURI(w, issuers)
+		if err != nil {
+			return fmt.Errorf(`%s: %w`, logp, err)
+		}
 	}
 
 	return nil

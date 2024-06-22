@@ -3,7 +3,7 @@
 ## SPDX-License-Identifier: GPL-3.0-or-later
 
 pkgname=gotp-git
-pkgver=0.4.0.r7.gf5788bd
+pkgver=0.5.0.r5.g58c64c0
 pkgrel=1
 
 pkgdesc="A command line interface to manage and generate Time-based One Time Password (TOTP)"

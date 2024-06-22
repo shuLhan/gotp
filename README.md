@@ -26,6 +26,13 @@ seconds, default to 30 seconds.
 The ISSUER field is also optional, its define the name of
 provider that generate the secret.
 
+    export <FORMAT> [FILE]
+
+Export all the issuers to file format that can be imported by provider.
+Currently, the only supported FORMAT is "uri".
+If FILE is not provided, it will print to the standard output.
+The list of exported issuers are printed in order by its label.
+
     gen <LABEL> [N]
 
 Generate N number passwords using the secret identified by LABEL.

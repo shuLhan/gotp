@@ -15,8 +15,9 @@ suggest_key() {
 
 _gotp_completions()
 {
-	commands=("add" "gen" "get" "import" "list" "remove"
+	local commands=("add" "export" "gen" "get" "import" "list" "remove"
 		"remove-private-key" "rename" "set-private-key")
+	local formats=("uri")
 
 	local len=${#COMP_WORDS[@]}
 	local cmd=${COMP_WORDS[1]}
@@ -24,6 +25,16 @@ _gotp_completions()
 
 	case "$cmd" in
 		add)
+			;;
+		export)
+			if [[ $len == 3 ]]; then
+				if [[ -z $key ]]; then
+					COMPREPLY=("${formats[@]}")
+				else
+					list="${formats[@]}"
+					COMPREPLY=($(compgen -W "$list" -- "$key"))
+				fi
+			fi
 			;;
 		gen)
 			if [[ $len == 3 ]]; then

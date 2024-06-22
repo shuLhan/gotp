@@ -11,6 +11,13 @@ import (
 	"strconv"
 )
 
+// parseProviderAegis parse the [Aegis Authenticator] exported file in the
+// URI format.
+// The URI scheme has the following format,
+//
+//	otpauth://totp/<LABEL>?period=&digits=&algorithm=&secret=&issuer=
+//
+// [Aegis Authenticator]: https://getaegis.app/
 func parseProviderAegis(file string) (issuers []*Issuer, err error) {
 	var (
 		logp = `parseProviderAegis`
