@@ -5,6 +5,35 @@
 :sectanchors:
 :sectlinks:
 
+
+[#v0_6_0]
+== gotp v0.6.0 (2024-06-22)
+
+[#v0_6_0__new_features]
+=== New features
+
+all: implement command "export"::
++
+--
+The "export" command export all issuers to file or standard output,
+
+    $ gotp export <FORMAT> [FILE]
+
+List of known supported FORMAT is: uri.
+If FILE is not defined it will print to standard output.
+The list of exported issuers are printed in order of its label.
+--
+
+[#v0_6_0__bug_fixes]
+=== Bug fix
+
+Fix "gen" command due to lower case secret::
++
+Sometimes, provider provide base32 of secret in lowercase.
+But, to decode it, all of the characters must be in upper case otherwise it
+will be failed.
+
+
 [#v0_5_0]
 == gotp v0.5.0 (2024-02-08)
 
