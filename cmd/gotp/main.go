@@ -108,7 +108,7 @@ func main() {
 		}
 
 	case cmdVersion:
-		fmt.Println(`gotp v`, gotp.Version)
+		fmt.Println(`gotp version`, gotp.Version)
 		return
 
 	default:

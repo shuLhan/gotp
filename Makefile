@@ -1,9 +1,12 @@
 ## SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
 ## SPDX-License-Identifier: GPL-3.0-or-later
 
+VERSION := $(shell git describe --tags)
+
 .PHONY: all
 all: test lint build
 
+.PHONY: test
 test:
 	CGO_ENABLED=1 go test -race -failfast -coverprofile=cover.out ./...
 	go tool cover -html=cover.out -o cover.html
@@ -14,9 +17,10 @@ lint:
 	go vet ./...
 
 .PHONY: build
+build: BUILD_FLAGS=-ldflags "-s -w -X 'git.sr.ht/~shulhan/gotp.Version=$(VERSION)'"
 build:
 	mkdir -p _sys/usr/bin/
-	go build -o _sys/usr/bin/ ./cmd/...
+	go build $(BUILD_FLAGS) -o _sys/usr/bin/ ./cmd/...
 
 .PHONY: install
 install: build
