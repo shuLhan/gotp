@@ -10,8 +10,11 @@ require git.sr.ht/~shulhan/pakakeh.go v0.60.0
 require (
 	golang.org/x/crypto v0.32.0 // indirect
 	golang.org/x/exp v0.0.0-20250128182459-e0ece0dbea4c // indirect
+	golang.org/x/mod v0.22.0 // indirect
+	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/term v0.28.0 // indirect
+	golang.org/x/tools v0.29.0 // indirect
 )
 
 //replace git.sr.ht/~shulhan/pakakeh.go => ../pakakeh.go

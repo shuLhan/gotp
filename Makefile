@@ -1,8 +1,7 @@
 ## SPDX-FileCopyrightText: 2021 M. Shulhan <ms@kilabit.info>
 ## SPDX-License-Identifier: GPL-3.0-or-later
 
-.PHONY: all test build install serve-doc
-
+.PHONY: all
 all: test lint build
 
 test:
@@ -11,14 +10,15 @@ test:
 
 .PHONY: lint
 lint:
-	-fieldalignment ./...
-	-shadow ./...
+	go run ./internal/cmd/gocheck ./...
 	go vet ./...
 
+.PHONY: build
 build:
 	mkdir -p _sys/usr/bin/
 	go build -o _sys/usr/bin/ ./cmd/...
 
+.PHONY: install
 install: build
 	install -D _sys/usr/bin/gotp $(DESTDIR)/usr/bin/gotp
 	install -Dm644 \
@@ -35,6 +35,7 @@ install-darwin: build
 	  $(DESTDIR)/etc/bash_completion.d/gotp
 	install -Dm644 COPYING $(DESTDIR)/share/gotp/COPYING
 
+.PHONY: serve-doc
 serve-doc:
 	ciigo serve _doc
 
