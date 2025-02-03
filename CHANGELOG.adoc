@@ -6,6 +6,28 @@
 :sectlinks:
 
 
+[#v0_6_1]
+== gotp v0.6.1 (2025-02-03)
+
+This releases mostly contains chores that update the dependencies and
+tooling.
+
+[CHORE]
+We have replace all linters from third party and external program to use
+internal command and "go vet" only.
+This should simplify setting up development.
+
+[CHORE]
+The CHANGELOG has been moved to the root of repository.
+This is to allow people to see the CHANGELOG directly without going to
+subdirectory first.
+
+[CHORE]
+The "gotp version" now set from output of "git describe" and set using
+"-ldflags" during build option.
+The output also changes from "go v<SEMVER>" to "go version <SEMVER>".
+
+
 [#v0_6_0]
 == gotp v0.6.0 (2024-06-22)
 

@@ -27,17 +27,13 @@ const (
 )
 
 // List of known providers.
-const (
-	providerNameAegis = `aegis`
-)
+const providerNameAegis = `aegis`
 
 // List of known format for export.
-const (
-	formatNameURI = `uri`
-)
+const formatNameURI = `uri`
 
 // Version define the latest version of this module and gotp CLI.
-var Version = `0.6.0`
+var Version = `0.6.1`
 
 // termrw define terminal for reading passphrase.
 // It is defined to mock parameter termrw in
