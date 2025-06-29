@@ -147,3 +147,17 @@ Rename a label "my-totp" to "my-otp",
     $ gotp rename my-totp my-otp
     gotp: reading configuration from /home/$USER/.config/gotp/gotp.conf
     OK
+
+
+##  Development
+
+<https://git.sr.ht/~shulhan/gotp>:: Link to the source code.
+
+<https://lists.sr.ht/~shulhan/gotp>:: Link to development and
+discussion.
+
+<https://todo.sr.ht/~shulhan/gotp>:: Link to submit an issue,
+feedback, or request for new feature.
+
+[Changelog](https://kilabit.info/project/gotp/CHANGELOG.html):: Change log
+for each releases.
