@@ -6,6 +6,22 @@
 :sectlinks:
 
 
+[#v0_6_2]
+== gotp v0.6.2 (2025-12-27)
+
+This is the last release for year 2025.
+
+[CHORE]
+_doc: merge index into README.
+This is so we can serve the _doc/ directory under
+https://kilabit.info/project/gotp/ .
+
+[CHORE]
+Update minimum Go version to 1.24.0 and update all dependencies.
+
+Happy holidays!
+
+
 [#v0_6_1]
 == gotp v0.6.1 (2025-02-03)
 

@@ -33,7 +33,7 @@ const providerNameAegis = `aegis`
 const formatNameURI = `uri`
 
 // Version define the latest version of this module and gotp CLI.
-var Version = `0.6.1`
+var Version = `0.6.2`
 
 // termrw define terminal for reading passphrase.
 // It is defined to mock parameter termrw in
